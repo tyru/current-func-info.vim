@@ -12,7 +12,7 @@ function! s:finder.find()
     let NONE = -1
 
     let [begin_lnum, end_lnum] = [search(begin_pattern, 'nW'), search(end_pattern, 'nW')]
-    if end_lnum == 0 || begin_lnum < end_lnum
+    if begin_lnum == 0 || end_lnum == 0 || begin_lnum < end_lnum
         return NONE
     endif
 
