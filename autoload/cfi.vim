@@ -40,6 +40,10 @@ function! cfi#create_finder(filetype) "{{{
     return s:finder[a:filetype]
 endfunction "}}}
 
+function! cfi#has_supported_for(filetype) "{{{
+    return has_key(s:finder, a:filetype)
+endfunction "}}}
+
 
 
 function! s:has_key_f(cont, keys) "{{{
