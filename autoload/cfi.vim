@@ -49,23 +49,14 @@ function! s:has_key_f(cont, keys) "{{{
         echohl None
         return 0
     elseif len(a:keys) == 1
-        return s:can_access(a:cont, a:keys[0])
+        return has_key(a:cont, a:keys[0])
     else
-        if s:can_access(a:cont, a:keys[0])
+        if has_key(a:cont, a:keys[0])
             return s:has_key_f(a:cont[a:keys[0]], a:keys[1:])
         else
             return 0
         endif
     endif
-endfunction "}}}
-
-function! s:can_access(cont, key) "{{{
-    try
-        let Value = a:cont[a:key]
-        return 1
-    catch
-        return 0
-    endtry
 endfunction "}}}
 
 
