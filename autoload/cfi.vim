@@ -19,7 +19,7 @@ let s:finder = {}
 
 
 function! cfi#load() "{{{
-    " dummy function to load this script
+    runtime! plugin/cfi.vim
 endfunction "}}}
 
 function! cfi#get_func_name(...) "{{{
