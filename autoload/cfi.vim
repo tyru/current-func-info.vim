@@ -76,11 +76,11 @@ function! s:base_finder.find() "{{{
         let self.phase = 1
         for method in ['find_begin', 'find_begin_normal']
             if has_key(self, method)
-                if self[method]() == 0
-                    return NONE
-                endif
                 if method ==# 'find_begin_normal'
                     let normal_is_used = 1
+                endif
+                if self[method]() == 0
+                    return NONE
                 endif
                 break
             endif
@@ -98,11 +98,11 @@ function! s:base_finder.find() "{{{
         let self.phase = 3
         for method in ['find_end', 'find_end_normal']
             if has_key(self, method)
-                if self[method]() == 0
-                    return NONE
-                endif
                 if method ==# 'find_end_normal'
                     let normal_is_used = 1
+                endif
+                if self[method]() == 0
+                    return NONE
                 endif
                 break
             endif
