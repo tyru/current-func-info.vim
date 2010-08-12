@@ -66,18 +66,25 @@ function! s:base_finder.find() "{{{
     let orig_pos = getpos('.')
     let [orig_lnum, orig_col] = [orig_pos[1], orig_pos[2]]
     let match = NONE
+    let normal_is_used = 0
 
-    for method in ['find_begin', 'find_end', 'get_func_name']
-        if !has_key(self, method)
-            return NONE
-        endif
-    endfor
+    if !s:has_base_finder_find_must_methods(self)
+        return NONE
+    endif
 
     try
         let self.phase = 1
-        if self.find_begin() == 0
-            return NONE
-        endif
+        for method in ['find_begin', 'find_begin_normal']
+            if has_key(self, method)
+                if self[method]() == 0
+                    return NONE
+                endif
+                if method ==# 'find_begin_normal'
+                    let normal_is_used = 1
+                endif
+                break
+            endif
+        endfor
         if self.is_ready
             let match = self.get_func_name()
         endif
@@ -89,9 +96,17 @@ function! s:base_finder.find() "{{{
         endif
 
         let self.phase = 3
-        if self.find_end() == 0
-            return NONE
-        endif
+        for method in ['find_end', 'find_end_normal']
+            if has_key(self, method)
+                if self[method]() == 0
+                    return NONE
+                endif
+                if method ==# 'find_end_normal'
+                    let normal_is_used = 1
+                endif
+                break
+            endif
+        endfor
         if self.is_ready && match is NONE
             let match = self.get_func_name()
         endif
@@ -111,15 +126,30 @@ function! s:base_finder.find() "{{{
         return match
     finally
         " Vim's bug: http://groups.google.com/group/vim_dev/browse_thread/thread/af729cf53e7d7abe
-        " if col('.') != orig_col
-        "     execute 'normal!' abs(col('.') - orig_col) . (col('.') > orig_col ? 'h' : 'l')
-        " endif
+        if normal_is_used
+            if col('.') != orig_col
+                execute 'normal!' abs(col('.') - orig_col) . (col('.') > orig_col ? 'h' : 'l')
+            endif
+        endif
 
         let self.is_ready = 0
         let self.phase = 0
 
         call setpos('.', orig_pos)
     endtry
+endfunction "}}}
+
+function! s:has_base_finder_find_must_methods(this) "{{{
+    if !has_key(a:this, 'get_func_name')
+        return 0
+    endif
+    if !has_key(a:this, 'find_begin') && !has_key(a:this, 'find_begin_normal')
+        return 0
+    endif
+    if !has_key(a:this, 'find_end') && !has_key(a:this, 'find_end_normal')
+        return 0
+    endif
+    return 1
 endfunction "}}}
 
 function! s:base_finder.pos_is_less_than(pos1, pos2) "{{{
