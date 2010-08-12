@@ -4,6 +4,13 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
+if exists('s:loaded') && s:loaded
+    finish
+endif
+let s:loaded = 1
+
+
+
 
 let s:finder = cfi#create_finder('perl')
 function! s:finder.find() "{{{
