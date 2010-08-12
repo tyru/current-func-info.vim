@@ -39,10 +39,11 @@ function! s:finder.get_func_name() "{{{
     return m[1]
 endfunction "}}}
 
-function! s:finder.find_begin_normal() "{{{
+function! s:finder.find_begin() "{{{
     let NONE = 0
     let [orig_lnum, orig_col] = [line('.'), col('.')]
     normal! [m
+    let self.is_normal_used = 1
     if line('.') == orig_lnum && col('.') == orig_col
         return NONE
     endif
@@ -50,10 +51,11 @@ function! s:finder.find_begin_normal() "{{{
     return line('.')
 endfunction "}}}
 
-function! s:finder.find_end_normal() "{{{
+function! s:finder.find_end() "{{{
     let NONE = 0
     let [orig_lnum, orig_col] = [line('.'), col('.')]
     normal! ]M
+    let self.is_normal_used = 1
     if line('.') == orig_lnum && col('.') == orig_col
         return NONE
     endif

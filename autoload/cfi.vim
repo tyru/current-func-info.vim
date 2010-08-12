@@ -48,7 +48,7 @@ endfunction "}}}
 
 function! cfi#create_finder(filetype) "{{{
     if !has_key(s:finder, a:filetype)
-        let s:finder[a:filetype] = {'_mixed': 0, 'is_ready': 0, 'phase': 0}
+        let s:finder[a:filetype] = {'_mixed': 0, 'is_ready': 0, 'phase': 0, 'is_normal_used': 0}
     endif
     return s:finder[a:filetype]
 endfunction "}}}
@@ -67,7 +67,6 @@ function! s:base_finder.find() "{{{
     let orig_pos = getpos('.')
     let [orig_lnum, orig_col] = [orig_pos[1], orig_pos[2]]
     let match = NONE
-    let normal_is_used = 0
 
     if !s:has_base_finder_find_must_methods(self)
         return NONE
@@ -75,17 +74,9 @@ function! s:base_finder.find() "{{{
 
     try
         let self.phase = 1
-        for method in ['find_begin', 'find_begin_normal']
-            if has_key(self, method)
-                if method ==# 'find_begin_normal'
-                    let normal_is_used = 1
-                endif
-                if self[method]() == 0
-                    return NONE
-                endif
-                break
-            endif
-        endfor
+        if self.find_begin() == 0
+            return NONE
+        endif
         if self.is_ready
             let match = self.get_func_name()
         endif
@@ -93,17 +84,9 @@ function! s:base_finder.find() "{{{
         let [begin_lnum, begin_col] = [line('.'), col('.')]
 
         let self.phase = 2
-        for method in ['find_end', 'find_end_normal']
-            if has_key(self, method)
-                if method ==# 'find_end_normal'
-                    let normal_is_used = 1
-                endif
-                if self[method]() == 0
-                    return NONE
-                endif
-                break
-            endif
-        endfor
+        if self.find_end() == 0
+            return NONE
+        endif
         if self.is_ready && match is NONE
             let match = self.get_func_name()
         endif
@@ -123,7 +106,7 @@ function! s:base_finder.find() "{{{
         return match
     finally
         " Vim's bug: http://groups.google.com/group/vim_dev/browse_thread/thread/af729cf53e7d7abe
-        if normal_is_used
+        if self.is_normal_used
             if col('.') != orig_col
                 execute 'normal!' abs(col('.') - orig_col) . (col('.') > orig_col ? 'h' : 'l')
             endif
@@ -131,6 +114,7 @@ function! s:base_finder.find() "{{{
 
         let self.is_ready = 0
         let self.phase = 0
+        let self.is_normal_used = 0
 
         call setpos('.', orig_pos)
     endtry
@@ -140,10 +124,10 @@ function! s:has_base_finder_find_must_methods(this) "{{{
     if !has_key(a:this, 'get_func_name')
         return 0
     endif
-    if !has_key(a:this, 'find_begin') && !has_key(a:this, 'find_begin_normal')
+    if !has_key(a:this, 'find_begin')
         return 0
     endif
-    if !has_key(a:this, 'find_end') && !has_key(a:this, 'find_end_normal')
+    if !has_key(a:this, 'find_end')
         return 0
     endif
     return 1
