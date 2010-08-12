@@ -62,6 +62,7 @@ endfunction "}}}
 let s:base_finder = {}
 
 function! s:base_finder.find() "{{{
+    " TODO Cache while being in function.
     let NONE = 0
     let orig_pos = getpos('.')
     let [orig_lnum, orig_col] = [orig_pos[1], orig_pos[2]]

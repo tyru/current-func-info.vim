@@ -8,6 +8,7 @@ set cpo&vim
 let s:finder = cfi#create_finder('c')
 
 function! s:finder.get_func_name() "{{{
+    " TODO Use searchpair() or % to confirm "funcname (arguments...) { ... }
     let NONE = 0
     let pat = '\C'.'\(\w\+\)('
     let lnum = search(pat, 'bnW')
