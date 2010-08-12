@@ -85,7 +85,7 @@ function! s:base_finder.find() "{{{
         let [begin_lnum, begin_col] = [line('.'), col('.')]
 
         let self.phase = 2
-        if match is NONE
+        if match is NONE && has_key(self, 'find_end')
             if self.find_end() == 0
                 return NONE
             endif
@@ -131,9 +131,6 @@ function! s:has_base_finder_find_must_methods(this) "{{{
         return 0
     endif
     if !has_key(a:this, 'find_begin')
-        return 0
-    endif
-    if !has_key(a:this, 'find_end')
         return 0
     endif
     return 1
