@@ -11,40 +11,34 @@ let s:loaded = 1
 
 
 
+let s:BEGIN_PATTERN = '\C'.'^\s*'.'sub\>'.'\s\+'.'\(\w\+\)'.'\%('.'\s*'.'([^()]*)'.'\)\='
+let s:BLOCK_FIRST_BRACE = '[[:space:][:return:]]*'.'\zs{'
 
 let s:finder = cfi#create_finder('perl')
-function! s:finder.find() "{{{
-    let noignorecase = '\C'
-    let funcname = '\(\w\+\)'
-    let attr = '\%('.'\s*'.'([^()]*)'.'\)\='
-    let begin_pattern = noignorecase.'^\s*'.'sub\>'.'\s\+'.funcname.attr
-    let whites_and_newlines = '[[:space:][:return:]]*'
-    let block_first_brace = whites_and_newlines.'\zs{'
 
-    let NONE = -1
+function! s:finder.find() "{{{
+    let NONE = 0
     let orig_pos = getpos('.')
     let [orig_lnum, orig_col] = [orig_pos[1], orig_pos[2]]
 
     try
-        let begin_lnum = search(begin_pattern.block_first_brace, 'bW')
-        if begin_lnum == 0
+        if self.find_begin() == 0
+            return NONE
+        endif
+        let [begin_lnum, begin_col] = [line('.'), col('.')]
+        if self.find_end() == 0
             return NONE
         endif
 
-        let [block_lnum, block_col] = [line('.'), col('.')]
-        let pos = searchpair('{', '', '}')
-        if pos == 0
-            return NONE
-        endif
         " sub { -> {original pos} -> }
-        let in_sub =
-        \   s:pos_is_less_than([block_lnum, block_col], [orig_lnum, orig_col])
+        let in_function =
+        \   s:pos_is_less_than([begin_lnum, begin_col], [orig_lnum, orig_col])
         \   && s:pos_is_less_than([orig_lnum, orig_col], [line('.'), col('.')])
-        if !in_sub
+        if !in_function
             return NONE
         endif
 
-        let m = matchlist(getline(begin_lnum), begin_pattern)
+        let m = matchlist(getline(begin_lnum), s:BEGIN_PATTERN)
         if empty(m)
             return NONE
         endif
@@ -53,7 +47,27 @@ function! s:finder.find() "{{{
         call setpos('.', orig_pos)
     endtry
 endfunction "}}}
+
+function! s:finder.find_begin() "{{{
+    let NONE = 0
+    let begin_lnum = search(s:BEGIN_PATTERN.s:BLOCK_FIRST_BRACE, 'bW')
+    if begin_lnum == 0
+        return NONE
+    endif
+    return line('.')
+endfunction "}}}
+
+function! s:finder.find_end() "{{{
+    let NONE = 0
+    let pos = searchpair('{', '', '}')
+    if pos == 0
+        return NONE
+    endif
+    return line('.')
+endfunction "}}}
+
 unlet s:finder
+
 
 function! s:pos_is_less_than(pos1, pos2)
     let [lnum1, col1] = a:pos1
