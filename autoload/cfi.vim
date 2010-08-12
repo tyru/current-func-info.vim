@@ -59,25 +59,6 @@ endfunction "}}}
 
 
 
-function! s:has_key_f(cont, keys) "{{{
-    if empty(a:keys)
-        echohl ErrorMsg
-        echomsg "cfi: sorry, internal error. please report this to author."
-        echohl None
-        return 0
-    elseif len(a:keys) == 1
-        return has_key(a:cont, a:keys[0])
-    else
-        if has_key(a:cont, a:keys[0])
-            return s:has_key_f(a:cont[a:keys[0]], a:keys[1:])
-        else
-            return 0
-        endif
-    endif
-endfunction "}}}
-
-
-
 let s:base_finder = {}
 
 function! s:base_finder.find() "{{{
