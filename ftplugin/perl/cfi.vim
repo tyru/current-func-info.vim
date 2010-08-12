@@ -16,36 +16,16 @@ let s:BLOCK_FIRST_BRACE = '[[:space:][:return:]]*'.'\zs{'
 
 let s:finder = cfi#create_finder('perl')
 
-function! s:finder.find() "{{{
+function! s:finder.get_func_name() "{{{
     let NONE = 0
-    let orig_pos = getpos('.')
-    let [orig_lnum, orig_col] = [orig_pos[1], orig_pos[2]]
-
-    try
-        if self.find_begin() == 0
-            return NONE
-        endif
-        let [begin_lnum, begin_col] = [line('.'), col('.')]
-        if self.find_end() == 0
-            return NONE
-        endif
-
-        " sub { -> {original pos} -> }
-        let in_function =
-        \   s:pos_is_less_than([begin_lnum, begin_col], [orig_lnum, orig_col])
-        \   && s:pos_is_less_than([orig_lnum, orig_col], [line('.'), col('.')])
-        if !in_function
-            return NONE
-        endif
-
-        let m = matchlist(getline(begin_lnum), s:BEGIN_PATTERN)
-        if empty(m)
-            return NONE
-        endif
-        return m[1]
-    finally
-        call setpos('.', orig_pos)
-    endtry
+    if self.phase !=# 1
+        return NONE
+    endif
+    let m = matchlist(getline('.'), s:BEGIN_PATTERN)
+    if empty(m)
+        return NONE
+    endif
+    return m[1]
 endfunction "}}}
 
 function! s:finder.find_begin() "{{{
@@ -54,6 +34,7 @@ function! s:finder.find_begin() "{{{
     if begin_lnum == 0
         return NONE
     endif
+    let self.is_ready = 1
     return line('.')
 endfunction "}}}
 
@@ -67,16 +48,6 @@ function! s:finder.find_end() "{{{
 endfunction "}}}
 
 unlet s:finder
-
-
-function! s:pos_is_less_than(pos1, pos2)
-    let [lnum1, col1] = a:pos1
-    let [lnum2, col2] = a:pos2
-    return
-    \   lnum1 < lnum2
-    \   || (lnum1 == lnum2
-    \       && col1 < col2)
-endfunction
 
 
 
