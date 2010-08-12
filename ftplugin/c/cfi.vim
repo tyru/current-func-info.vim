@@ -8,17 +8,31 @@ set cpo&vim
 let s:finder = cfi#create_finder('c')
 
 function! s:finder.get_func_name() "{{{
-    " TODO Use searchpair() or % to confirm "funcname (arguments...) { ... }
     let NONE = 0
     let pat = '\C'.'\(\w\+\)('
-    let lnum = search(pat, 'bnW')
-    if lnum == 0
+    let orig_pos = [line('.'), col('.')]
+
+    if search(pat, 'bW') == 0
         return NONE
     endif
-    if abs(lnum - line('.')) > 1
+    let funcname_lnum = line('.')
+
+    " Jump to function-like word, and check arguments, and block.
+    for [fn; args] in [
+    \   ['search', '(', 'W'],
+    \   ['searchpair', '(', '', ')'],
+    \   ['search', '{'],
+    \]
+        if call(fn, args) == 0
+            return NONE
+        endif
+    endfor
+
+    if orig_pos != [line('.'), col('.')]
         return NONE
     endif
-    let m = matchlist(getline(lnum), pat)
+
+    let m = matchlist(getline(funcname_lnum), pat)
     if empty(m)
         return NONE
     endif
