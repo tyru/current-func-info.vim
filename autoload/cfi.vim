@@ -89,13 +89,9 @@ function! s:base_finder.find() "{{{
             let match = self.get_func_name()
         endif
 
-        let self.phase = 2
         let [begin_lnum, begin_col] = [line('.'), col('.')]
-        if self.is_ready && match is NONE
-            let match = self.get_func_name()
-        endif
 
-        let self.phase = 3
+        let self.phase = 2
         for method in ['find_end', 'find_end_normal']
             if has_key(self, method)
                 if method ==# 'find_end_normal'
