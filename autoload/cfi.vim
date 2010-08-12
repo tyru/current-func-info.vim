@@ -67,6 +67,7 @@ function! s:base_finder.find() "{{{
     let orig_pos = getpos('.')
     let [orig_lnum, orig_col] = [orig_pos[1], orig_pos[2]]
     let match = NONE
+    let skipped_find_end = 0
 
     if !s:has_base_finder_find_must_methods(self)
         return NONE
@@ -84,11 +85,15 @@ function! s:base_finder.find() "{{{
         let [begin_lnum, begin_col] = [line('.'), col('.')]
 
         let self.phase = 2
-        if self.find_end() == 0
-            return NONE
-        endif
-        if self.is_ready && match is NONE
-            let match = self.get_func_name()
+        if match is NONE
+            if self.find_end() == 0
+                return NONE
+            endif
+            if self.is_ready
+                let match = self.get_func_name()
+            endif
+        else
+            let skipped_find_end = 1
         endif
 
         if match is NONE
@@ -98,7 +103,8 @@ function! s:base_finder.find() "{{{
         " function's begin pos -> {original pos} -> function's end pos
         let in_function =
         \   self.pos_is_less_than([begin_lnum, begin_col], [orig_lnum, orig_col])
-        \   && self.pos_is_less_than([orig_lnum, orig_col], [line('.'), col('.')])
+        \   && (!skipped_find_end
+        \       && self.pos_is_less_than([orig_lnum, orig_col], [line('.'), col('.')]))
         if !in_function
             return NONE
         endif
