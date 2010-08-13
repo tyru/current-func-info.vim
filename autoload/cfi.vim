@@ -64,8 +64,8 @@ let s:base_finder = {}
 function! s:base_finder.find() "{{{
     " TODO Cache while being in function.
     let NONE = 0
-    let orig_pos = getpos('.')
-    let [orig_lnum, orig_col] = [orig_pos[1], orig_pos[2]]
+    let orig_view = winsaveview()
+    let [orig_lnum, orig_col] = [line('.'), col('.')]
     let match = NONE
     let skipped_find_end = 0
 
@@ -112,18 +112,11 @@ function! s:base_finder.find() "{{{
 
         return match
     finally
-        " Vim's bug: http://groups.google.com/group/vim_dev/browse_thread/thread/af729cf53e7d7abe
-        if self.is_normal_used
-            if col('.') != orig_col
-                execute 'normal!' abs(col('.') - orig_col) . (col('.') > orig_col ? 'h' : 'l')
-            endif
-        endif
-
         let self.is_ready = 0
         let self.phase = 0
         let self.is_normal_used = 0
 
-        call setpos('.', orig_pos)
+        call winrestview(orig_view)
     endtry
 endfunction "}}}
 
