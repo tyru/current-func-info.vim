@@ -11,28 +11,44 @@ let s:loaded = 1
 
 
 
+let s:BEGIN_PATTERN = '\C'.'^\s*'.'fu\%[nction]\>'.'!\='.'\s\+'.'\([^(]\+\)'.'('
+let s:END_PATTERN   = '\C'.'^\s*'.'endf*\%[unction]\>'
+
+
+
 let s:finder = cfi#create_finder('vim')
-function! s:finder.find()
-    let begin_pattern = '\C'.'^\s*'.'fu\%[nction]\>'.'!\='.'\s\+'.'\([^(]\+\)'.'('
-    let end_pattern = '\C'.'^\s*'.'endf*\%[unction]\>'
-    let NONE = -1
 
-    let [begin_lnum, end_lnum] = [search(begin_pattern, 'nW'), search(end_pattern, 'nW')]
-    if begin_lnum == 0 || end_lnum == 0 || begin_lnum < end_lnum
+function! s:finder.get_func_name() "{{{
+    let NONE = 0
+    if self.phase !=# 1
         return NONE
     endif
-
-    let begin_lnum = search(begin_pattern, 'bnW')
-    if begin_lnum == 0
-        return NONE
-    endif
-
-    let m = matchlist(getline(begin_lnum), begin_pattern)
+    let m = matchlist(getline('.'), s:BEGIN_PATTERN)
     if empty(m)
         return NONE
     endif
     return m[1]
-endfunction
+endfunction "}}}
+
+function! s:finder.find_begin() "{{{
+    let NONE = 0
+    let begin_lnum = search(s:BEGIN_PATTERN, 'bW')
+    if begin_lnum == 0
+        return NONE
+    endif
+    let self.is_ready = 1
+    return line('.')
+endfunction "}}}
+
+function! s:finder.find_end() "{{{
+    let NONE = 0
+    let pos = searchpair(s:BEGIN_PATTERN, '', s:END_PATTERN)
+    if pos == 0
+        return NONE
+    endif
+    return line('.')
+endfunction "}}}
+
 unlet s:finder
 
 
