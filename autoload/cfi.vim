@@ -86,16 +86,14 @@ function! s:base_finder.find() "{{{
 
         let self.phase = 2
         if match is NONE
-            if has_key(self, 'find_end') && self.find_end() == 0
-                if self.find_end() == 0
-                    return NONE
-                endif
-                if self.is_ready
-                    let match = self.get_func_name()
-                endif
-                if match is NONE
-                    return NONE
-                endif
+            if self.find_end() == 0
+                return NONE
+            endif
+            if self.is_ready
+                let match = self.get_func_name()
+            endif
+            if match is NONE
+                return NONE
             endif
         else
             let skipped_find_end = 1
@@ -125,6 +123,9 @@ function! s:has_base_finder_find_must_methods(this) "{{{
         return 0
     endif
     if !has_key(a:this, 'find_begin')
+        return 0
+    endif
+    if !has_key(a:this, 'find_end')
         return 0
     endif
     return 1
