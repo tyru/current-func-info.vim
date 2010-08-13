@@ -61,6 +61,7 @@ endfunction "}}}
 
 
 
+" s:base_finder {{{
 let s:base_finder = {}
 
 function! s:base_finder.find() "{{{
@@ -126,6 +127,16 @@ function! s:base_finder.find() "{{{
     endtry
 endfunction "}}}
 
+function! s:base_finder.pos_is_less_than(pos1, pos2) "{{{
+    let [lnum1, col1] = a:pos1
+    let [lnum2, col2] = a:pos2
+    return
+    \   lnum1 < lnum2
+    \   || (lnum1 == lnum2
+    \       && col1 < col2)
+endfunction "}}}
+
+
 function! s:has_base_finder_find_must_methods(this) "{{{
     if !has_key(a:this, 'get_func_name')
         return 0
@@ -147,14 +158,8 @@ function! s:has_complete_cache(this) "{{{
     \   && has_key(a:this._cache, 'match')
 endfunction "}}}
 
-function! s:base_finder.pos_is_less_than(pos1, pos2) "{{{
-    let [lnum1, col1] = a:pos1
-    let [lnum2, col2] = a:pos2
-    return
-    \   lnum1 < lnum2
-    \   || (lnum1 == lnum2
-    \       && col1 < col2)
-endfunction "}}}
+" }}}
+
 
 
 " Restore 'cpoptions' {{{
