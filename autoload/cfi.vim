@@ -27,9 +27,6 @@ function! cfi#get_func_name(...) "{{{
     let NONE = ""
 
     if !has_key(s:finder, filetype)
-        " TODO
-        " If there is [[ keymapping, use it.
-        " (In C (especially C++), it had better use [m keymapping)
         return NONE
     endif
 
