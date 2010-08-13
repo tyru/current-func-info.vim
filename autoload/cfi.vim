@@ -42,8 +42,13 @@ function! cfi#get_func_name(...) "{{{
         return NONE
     endif
 
-    let val = s:finder[filetype].find()
-    return type(val) == type("") ? val : NONE
+    let orig_view = winsaveview()
+    try
+        let val = s:finder[filetype].find()
+        return type(val) == type("") ? val : NONE
+    finally
+        call winrestview(orig_view)
+    endtry
 endfunction "}}}
 
 function! cfi#create_finder(filetype) "{{{
@@ -63,7 +68,6 @@ let s:base_finder = {}
 
 function! s:base_finder.find() "{{{
     let NONE = 0
-    let orig_view = winsaveview()
     let [orig_lnum, orig_col] = [line('.'), col('.')]
     let match = NONE
 
@@ -122,8 +126,6 @@ function! s:base_finder.find() "{{{
         let self.is_ready = 0
         let self.phase = 0
         let self.is_normal_used = 0
-
-        call winrestview(orig_view)
     endtry
 endfunction "}}}
 
