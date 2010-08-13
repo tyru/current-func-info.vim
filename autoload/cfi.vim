@@ -62,7 +62,6 @@ endfunction "}}}
 let s:base_finder = {}
 
 function! s:base_finder.find() "{{{
-    " TODO Cache while being in function.
     let NONE = 0
     let orig_view = winsaveview()
     let [orig_lnum, orig_col] = [line('.'), col('.')]
@@ -73,6 +72,18 @@ function! s:base_finder.find() "{{{
     endif
 
     try
+        if s:has_complete_cache(self)
+            " function's begin pos -> {original pos} -> function's end pos
+            let in_function =
+            \   self.pos_is_less_than(self._cache.begin_pos, [line('.'), col('.')])
+            \   && self.pos_is_less_than([line('.'), col('.')], self._cache.end_pos)
+            if in_function
+                return self._cache.match
+            endif
+            " Left previous function block already.
+        endif
+        let self._cache = {}
+
         let self.phase = 1
         if self.find_begin() == 0
             return NONE
@@ -82,6 +93,7 @@ function! s:base_finder.find() "{{{
         endif
 
         let [begin_lnum, begin_col] = [line('.'), col('.')]
+        let self._cache.begin_pos = [begin_lnum, begin_col]
 
         let self.phase = 2
         if self.find_end() == 0
@@ -94,6 +106,8 @@ function! s:base_finder.find() "{{{
             return NONE
         endif
 
+        let self._cache.end_pos = [line('.'), col('.')]
+
         " function's begin pos -> {original pos} -> function's end pos
         let in_function =
         \   self.pos_is_less_than([begin_lnum, begin_col], [orig_lnum, orig_col])
@@ -102,6 +116,7 @@ function! s:base_finder.find() "{{{
             return NONE
         endif
 
+        let self._cache.match = match
         return match
     finally
         let self.is_ready = 0
@@ -123,6 +138,14 @@ function! s:has_base_finder_find_must_methods(this) "{{{
         return 0
     endif
     return 1
+endfunction "}}}
+
+function! s:has_complete_cache(this) "{{{
+    return
+    \   has_key(a:this, '_cache')
+    \   && has_key(a:this._cache, 'begin_pos')
+    \   && has_key(a:this._cache, 'end_pos')
+    \   && has_key(a:this._cache, 'match')
 endfunction "}}}
 
 function! s:base_finder.pos_is_less_than(pos1, pos2) "{{{
