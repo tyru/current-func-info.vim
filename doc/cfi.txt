@@ -42,7 +42,7 @@ FUNCTIONS					*cfi-functions* {{{
 cfi#load()				*cfi#load()*
 	Load "autoload/cfi.vim" and "plugin/cfi.vim".
 
-cfi#get_func_name()				*cfi#get_func_name()*
+cfi#get_func_name([{filetype}])				*cfi#get_func_name()*
 	Returns function's name.
 	Include this expression to |'statusline'| or |'tabline'| and so on.
 
