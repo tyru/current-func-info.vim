@@ -27,8 +27,8 @@ function! s:finder.find() "{{{
             return NONE
         endif
 
-        " Function's indent must be lower than indent_num or same.
-        if s:get_indent_num('.') > indent_num
+        " Function's indent must be lower than indent_num.
+        if s:get_indent_num('.') >= indent_num
             return NONE
         endif
 
