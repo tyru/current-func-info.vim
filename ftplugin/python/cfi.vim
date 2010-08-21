@@ -54,7 +54,7 @@ function! s:finder.find() "{{{
     endtry
 endfunction "}}}
 
-function! s:get_indent_num(lnum)
+function! s:get_indent_num(lnum) "{{{
     return strlen(matchstr(getline(a:lnum), '^[ \t]*'))
 endfunction "}}}
 
