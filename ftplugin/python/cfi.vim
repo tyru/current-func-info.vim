@@ -26,25 +26,27 @@ function! s:finder.find() "{{{
         if pos == 0
             return NONE
         endif
+        " ...now at function name pos.
 
         " Function's indent must be lower than indent_num.
         if s:get_indent_num('.') >= indent_num
             return NONE
         endif
 
-        " XXX: This does not suppose here document.
-        if 0
-            " The range from function name to current pos
-            " must has stepwise indent num.
-            let n = s:get_indent_num('.')
-            for lnum in range(line('.'), orig_lnum)
-                if s:get_indent_num(lnum) < n
-                    return NONE
-                endif
-            endfor
-        endif
+        " NOTE: s:get_multiline_string_range() changes current pos.
+        " So save info about pos before calling it.
+        let n = s:get_indent_num('.')
+        let [begin, end] = [line('.'), orig_lnum]
+        let multi_str_range = s:get_multiline_string_range(begin, end)
+        " The range from function name to current pos
+        " must has stepwise indent num.
+        for lnum in range(begin, end)
+            if s:get_indent_num(lnum) < n && !s:in_multiline_string(multi_str_range, lnum)
+                return NONE
+            endif
+        endfor
 
-        let m = matchlist(getline('.'), s:BEGIN_PATTERN)
+        let m = matchlist(getline(begin), s:BEGIN_PATTERN)
         if empty(m)
             return NONE
         endif
@@ -56,6 +58,37 @@ endfunction "}}}
 
 function! s:get_indent_num(lnum) "{{{
     return strlen(matchstr(getline(a:lnum), '^[ \t]*'))
+endfunction "}}}
+
+function! s:get_multiline_string_range(search_begin, search_end) "{{{
+    let MULTI_STR_RX = '\%('.'"""'.'\|'."'''".'\)'
+    let range = []
+
+    while 1
+        " begin of multi string
+        let begin = search(MULTI_STR_RX, 'W')
+        if begin == 0 || !(a:search_begin <= begin && begin <= a:search_end)
+            return range
+        endif
+        " end of multi string
+        let end = search(MULTI_STR_RX, 'W')
+        if end == 0 || !(a:search_begin <= end && end <= a:search_end)
+            return range
+        endif
+
+        call add(range, [begin, end])
+    endwhile
+endfunction "}}}
+
+function! s:in_multiline_string(range, lnum) "{{{
+    " Ignore `begin` and `end` lnum.
+    " Because they are lnums where """ or ''' is.
+    for [begin, end] in a:range
+        if begin < a:lnum && a:lnum < end
+            return 1
+        endif
+    endfor
+    return 0
 endfunction "}}}
 
 unlet s:finder
