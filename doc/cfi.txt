@@ -2,7 +2,7 @@
 
 Author:
   tyru <tyru.exe@gmail.com>
-Version: 0.0.1
+Version: 0.0.2
 License:
 " NEW BSD LICENSE {{{
 "   Copyright (c) 2009, tyru
@@ -75,6 +75,9 @@ CHANGELOG						*cfi-changelog* {{{
 - Initial upload
 0.0.1:
 - Fix bug: couldn't get the name of last function in a file.
+0.0.2:
+- Implement cfi#format()
+- Implement Python support
 
 }}}
 ==============================================================================
