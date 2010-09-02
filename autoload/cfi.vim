@@ -147,16 +147,10 @@ endfunction "}}}
 
 
 function! s:has_base_finder_find_must_methods(this) "{{{
-    if !has_key(a:this, 'get_func_name')
-        return 0
-    endif
-    if !has_key(a:this, 'find_begin')
-        return 0
-    endif
-    if !has_key(a:this, 'find_end')
-        return 0
-    endif
-    return 1
+    return
+    \   has_key(a:this, 'get_func_name')
+    \   && has_key(a:this, 'find_begin')
+    \   && has_key(a:this, 'find_end')
 endfunction "}}}
 
 function! s:has_complete_cache(this) "{{{
