@@ -15,25 +15,19 @@ let s:BEGIN_PATTERN = '\C'.'^\s*'.'def\>'.'\s\+'.'\('.'[^(]\+'.'\)'.'\%('.'\s*'.
 
 let s:finder = cfi#create_finder('ruby')
 
-function! s:finder.get_func_name() "{{{
+function s:finder.find() "{{{
     let NONE = 0
-    if self.phase !=# 1
+
+    if search(s:BEGIN_PATTERN, 'bW') == 0
         return NONE
     endif
+
     let m = matchlist(getline('.'), s:BEGIN_PATTERN)
     if empty(m)
         return NONE
     endif
-    return m[1]
-endfunction "}}}
 
-function! s:finder.find_begin() "{{{
-    let NONE = 0
-    if search(s:BEGIN_PATTERN, 'bW') == 0
-        return NONE
-    endif
-    let self.is_ready = 1
-    return line('.')
+    return m[1]
 endfunction "}}}
 
 unlet s:finder
