@@ -25,10 +25,10 @@ endif
 
 let s:finder = cfi#create_finder('php')
 
-function s:finder.find() "{{{
+function! s:finder.get_func_name() "{{{
     let NONE = 0
 
-    if search(s:BEGIN_PATTERN, 'bW') == 0
+    if self.phase !=# 1
         return NONE
     endif
 
@@ -38,6 +38,28 @@ function s:finder.find() "{{{
     endif
 
     return m[1]
+endfunction "}}}
+
+function! s:finder.find_begin() "{{{
+    let NONE = 0
+    let [orig_lnum, orig_col] = [line('.'), col('.')]
+    normal! [m
+    if line('.') == orig_lnum && col('.') == orig_col
+        return NONE
+    endif
+    let self.is_ready = 1
+    return line('.')
+endfunction "}}}
+
+function! s:finder.find_end() "{{{
+    let NONE = 0
+    let [orig_lnum, orig_col] = [line('.'), col('.')]
+    normal! ]M
+    if line('.') == orig_lnum && col('.') == orig_col
+        return NONE
+    endif
+    let self.is_ready = 1
+    return line('.')
 endfunction "}}}
 
 unlet s:finder
