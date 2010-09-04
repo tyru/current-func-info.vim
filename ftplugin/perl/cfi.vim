@@ -30,8 +30,7 @@ endfunction "}}}
 
 function! s:finder.find_begin() "{{{
     let NONE = 0
-    let begin_lnum = search(s:BEGIN_PATTERN.s:BLOCK_FIRST_BRACE, 'bW')
-    if begin_lnum == 0
+    if search(s:BEGIN_PATTERN.s:BLOCK_FIRST_BRACE, 'bW') == 0
         return NONE
     endif
     let self.is_ready = 1
@@ -40,8 +39,7 @@ endfunction "}}}
 
 function! s:finder.find_end() "{{{
     let NONE = 0
-    let pos = searchpair('{', '', '}')
-    if pos == 0
+    if searchpair('{', '', '}') == 0
         return NONE
     endif
     return line('.')
