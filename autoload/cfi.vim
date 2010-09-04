@@ -59,7 +59,7 @@ endfunction "}}}
 
 function! cfi#create_finder(filetype) "{{{
     if !has_key(s:finder, a:filetype)
-        let s:finder[a:filetype] = {'_mixed': 0, 'is_ready': 0, 'phase': 0, 'is_normal_used': 0}
+        let s:finder[a:filetype] = {'_mixed': 0, 'is_ready': 0, 'phase': 0}
     endif
     return s:finder[a:filetype]
 endfunction "}}}
@@ -132,7 +132,6 @@ function! s:base_finder.find() "{{{
     finally
         let self.is_ready = 0
         let self.phase = 0
-        let self.is_normal_used = 0
     endtry
 endfunction "}}}
 
