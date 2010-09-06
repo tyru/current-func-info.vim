@@ -33,6 +33,7 @@ INTRODUCTION						*cfi-introduction* {{{
 current-func-info shows current function's name to statusline, tabline,
 anywhere.
 |cfi#get_func_name()| to get function's name.
+
 }}}
 ==============================================================================
 INTERFACE				*cfi-interface* {{{
