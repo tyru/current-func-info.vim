@@ -42,23 +42,27 @@ endfunction "}}}
 
 function! s:finder.find_begin() "{{{
     let NONE = 0
-    let [orig_lnum, orig_col] = [line('.'), col('.')]
-    normal! [m
-    if line('.') == orig_lnum && col('.') == orig_col
+
+    if search(s:BEGIN_PATTERN, 'bW') == 0
         return NONE
     endif
+
     let self.is_ready = 1
     return line('.')
 endfunction "}}}
 
 function! s:finder.find_end() "{{{
     let NONE = 0
-    let [orig_lnum, orig_col] = [line('.'), col('.')]
-    normal! ]M
-    if line('.') == orig_lnum && col('.') == orig_col
+    let self.is_ready = 0
+
+    if search('{', 'W') == 0
         return NONE
     endif
-    let self.is_ready = 1
+
+    if searchpair('{', '', '}', 'W') == 0
+        return NONE
+    endif
+
     return line('.')
 endfunction "}}}
 
