@@ -23,6 +23,7 @@ CONTENTS						*cfi-contents*
 Introduction		|cfi-introduction|
 Interface			|cfi-interface|
   Functions			|cfi-functions|
+  Variables			|cfi-variables|
 Changelog			|cfi-changelog|
 
 
@@ -65,6 +66,17 @@ cfi#create_finder({filetype})				*cfi#create_finder()*
 
 cfi#supported_filetype({filetype})				*cfi#supported_filetype()*
 	Return boolean value if {filetype} is supported.
+
+}}}
+------------------------------------------------------------------------------
+VARIABLES					*cfi-variables* {{{
+
+PHP
+------
+
+g:cfi_php_show_params			*g:cfi_php_show_params*
+							(Default: 0)
+	Include arguments to |cfi#get_func_name()|'s return value.
 
 }}}
 }}}
