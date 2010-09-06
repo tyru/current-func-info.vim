@@ -42,8 +42,7 @@ endfunction "}}}
 
 function! s:finder.find_end() "{{{
     let NONE = 0
-    let pos = searchpair(s:BEGIN_PATTERN, '', s:END_PATTERN)
-    if pos == 0
+    if searchpair(s:BEGIN_PATTERN, '', s:END_PATTERN, 'W') == 0
         return NONE
     endif
     return line('.')

@@ -39,7 +39,7 @@ endfunction "}}}
 
 function! s:finder.find_end() "{{{
     let NONE = 0
-    if searchpair('{', '', '}') == 0
+    if searchpair('{', '', '}', 'W') == 0
         return NONE
     endif
     return line('.')
