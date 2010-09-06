@@ -46,6 +46,7 @@ cfi#load()				*cfi#load()*
 
 cfi#get_func_name([{filetype}])				*cfi#get_func_name()*
 	Returns function's name.
+	If {filetype} is omitted, current 'filetype' is used instead.
 	Include this expression to |'statusline'| or |'tabline'| and so on.
 
 cfi#format({fmt}, {default})			*cfi#format()*
