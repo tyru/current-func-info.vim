@@ -2,7 +2,7 @@
 
 Author:
   tyru <tyru.exe@gmail.com>
-Version: 0.0.4
+Version: 0.0.5
 License:
 " NEW BSD LICENSE {{{
 "   Copyright (c) 2009, tyru
@@ -106,6 +106,9 @@ CHANGELOG						*cfi-changelog* {{{
 - Fix bug: Ruby ftplugin did not work.
 0.0.4:
 - Include PHP support. Thanks Chris Ruzin.
+0.0.5:
+- Fix the flickering of c ftplugin
+- Add variables g:cfi_disable, g:loaded_cfi_ftplugin_{lang}.
 
 }}}
 ==============================================================================
