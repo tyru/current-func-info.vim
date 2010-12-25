@@ -4,10 +4,10 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-if exists('s:loaded') && s:loaded
+if exists('g:cfi_disable') || exists('g:loaded_cfi_ftplugin_ruby')
     finish
 endif
-let s:loaded = 1
+let g:loaded_cfi_ftplugin_ruby = 1
 
 
 
