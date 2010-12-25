@@ -73,6 +73,16 @@ cfi#supported_filetype({filetype})				*cfi#supported_filetype()*
 ------------------------------------------------------------------------------
 VARIABLES					*cfi-variables* {{{
 
+All
+------
+
+g:cfi_disable					*g:cfi_disable*
+	Disable all features and ftplugins.
+
+g:loaded_cfi_ftplugin_{lang}	*g:loaded_cfi_ftplugin*
+	Disable the load of ftplugin/{lang}/cfi.vim
+
+
 PHP
 ------
 
