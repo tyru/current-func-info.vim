@@ -1,13 +1,16 @@
 " vim:foldmethod=marker:fen:
 scriptencoding utf-8
-let s:save_cpo = &cpo
-set cpo&vim
 
 
 if exists('g:cfi_disable') || exists('g:loaded_cfi_ftplugin_python')
     finish
 endif
 let g:loaded_cfi_ftplugin_python = 1
+
+" Saving 'cpoptions' {{{
+let s:save_cpo = &cpo
+set cpo&vim
+" }}}
 
 
 
