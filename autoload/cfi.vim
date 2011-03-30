@@ -16,7 +16,7 @@ let s:finder = {}
 
 
 function! cfi#load() "{{{
-    runtime! plugin/cfi.vim
+    " Dummy function to load this file.
 endfunction "}}}
 
 function! cfi#get_func_name(...) "{{{
