@@ -1,7 +1,7 @@
 " vim:foldmethod=marker:fen:
 scriptencoding utf-8
 
-if exists('g:cfi_disable')
+if exists('g:cfi_disable') && g:cfi_disable
     finish
 endif
 " Saving 'cpoptions' {{{

@@ -2,7 +2,8 @@
 scriptencoding utf-8
 
 
-if exists('g:cfi_disable') || exists('g:loaded_cfi_ftplugin_vim')
+if (exists('g:cfi_disable') && g:cfi_disable)
+\   || (exists('g:loaded_cfi_ftplugin_vim') && g:loaded_cfi_ftplugin_vim)
     finish
 endif
 let g:loaded_cfi_ftplugin_vim = 1

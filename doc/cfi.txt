@@ -77,10 +77,10 @@ All
 ------
 
 g:cfi_disable					*g:cfi_disable*
-	Disable all features and ftplugins.
+	If true, disable all features and ftplugins.
 
 g:loaded_cfi_ftplugin_{lang}	*g:loaded_cfi_ftplugin*
-	Disable the load of ftplugin/{lang}/cfi.vim
+	If true, disable the load of ftplugin/{lang}/cfi.vim
 
 
 PHP
