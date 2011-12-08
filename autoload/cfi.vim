@@ -1,9 +1,6 @@
 " vim:foldmethod=marker:fen:
 scriptencoding utf-8
 
-if exists('g:cfi_disable') && g:cfi_disable
-    finish
-endif
 " Saving 'cpoptions' {{{
 let s:save_cpo = &cpo
 set cpo&vim
@@ -20,6 +17,10 @@ function! cfi#load() "{{{
 endfunction "}}}
 
 function! cfi#get_func_name(...) "{{{
+    if g:cfi_disable
+        return ''
+    endif
+
     let filetype = a:0 ? a:1 : &l:filetype
     let NONE = ""
 
@@ -62,7 +63,7 @@ function! cfi#create_finder(filetype) "{{{
 endfunction "}}}
 
 function! cfi#supported_filetype(filetype) "{{{
-    return has_key(s:finder, a:filetype)
+    return !g:cfi_disable && has_key(s:finder, a:filetype)
 endfunction "}}}
 
 
