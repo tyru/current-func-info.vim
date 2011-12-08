@@ -2,8 +2,7 @@
 scriptencoding utf-8
 
 
-if (exists('g:cfi_disable') && g:cfi_disable)
-\   || (exists('g:loaded_cfi_ftplugin_ruby') && g:loaded_cfi_ftplugin_ruby)
+if g:cfi_disable || get(g:, 'loaded_cfi_ftplugin_ruby')
     finish
 endif
 let g:loaded_cfi_ftplugin_ruby = 1
