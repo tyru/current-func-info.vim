@@ -6,6 +6,8 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
+" Define g:cfi_disable, and so on.
+runtime! plugin/cfi.vim
 
 
 let s:finder = {}
