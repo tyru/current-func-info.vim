@@ -2,7 +2,7 @@
 scriptencoding utf-8
 
 
-if g:cfi_disable || get(g:, 'loaded_cfi_ftplugin_python')
+if get(g:, 'cfi_disable') || get(g:, 'loaded_cfi_ftplugin_python')
     finish
 endif
 let g:loaded_cfi_ftplugin_python = 1
