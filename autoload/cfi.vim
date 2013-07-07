@@ -57,13 +57,6 @@ function! cfi#format(fmt, default) "{{{
     endif
 endfunction "}}}
 
-function! cfi#echo_func_name() "{{{
-    let name = cfi#get_func_name()
-    if name != ''
-        echo name
-    endif
-endfunction "}}}
-
 function! cfi#create_finder(filetype) "{{{
     if !has_key(s:finder, a:filetype)
         let s:finder[a:filetype] = {'_mixed': 0, 'is_ready': 0, 'phase': 0}
