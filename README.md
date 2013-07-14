@@ -47,6 +47,6 @@ Map your shortcut key to echo the current function name on the status bar.
 Add this line in your .vimrc file.
 
 ```VimL
-nmap <C-g> :echo cfi#format("%s\n", "")<CR>
+nnoremap <C-g>f :echo cfi#format("%s", "")<CR>
 ```
 
