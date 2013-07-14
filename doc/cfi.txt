@@ -25,6 +25,7 @@ Interface			|cfi-interface|
   Functions			|cfi-functions|
   Variables			|cfi-variables|
 Changelog			|cfi-changelog|
+Thanks				|cfi-thanks|
 
 
 ==============================================================================
@@ -109,6 +110,12 @@ CHANGELOG						*cfi-changelog* {{{
 0.0.5:
 - Fix the flickering of c ftplugin
 - Add variables g:cfi_disable, g:loaded_cfi_ftplugin_{lang}.
+
+}}}
+==============================================================================
+Thanks						*cfi-thanks* {{{
+
+- athom
 
 }}}
 ==============================================================================
