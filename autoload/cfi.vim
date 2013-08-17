@@ -56,9 +56,8 @@ function! cfi#get_func_name(...) "{{{
             endif
         elseif type(val) == s:TYPE_STRING
             return val
-        elseif type(val) is s:TYPE_NUMBER
-            return NONE
         endif
+        return NONE
     finally
         call winrestview(orig_view)
     endtry
