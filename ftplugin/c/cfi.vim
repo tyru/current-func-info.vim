@@ -49,7 +49,7 @@ function! s:finder.get_func_name() "{{{
 endfunction "}}}
 
 function! s:finder.find_begin() "{{{
-    let NONE = 0
+    let NONE = []
     let [orig_lnum, orig_col] = [line('.'), col('.')]
 
     let vb = &vb
@@ -61,11 +61,11 @@ function! s:finder.find_begin() "{{{
         return NONE
     endif
     let self.is_ready = 1
-    return line('.')
+    return [line('.'), col('.')]
 endfunction "}}}
 
 function! s:finder.find_end() "{{{
-    let NONE = 0
+    let NONE = []
     let [orig_lnum, orig_col] = [line('.'), col('.')]
 
     let vb = &vb
@@ -77,9 +77,11 @@ function! s:finder.find_end() "{{{
         return NONE
     endif
     let self.is_ready = 1
-    return line('.')
+    return [line('.'), col('.')]
 endfunction "}}}
 
+call cfi#register_finder('c', s:finder)
+unlet s:finder
 
 
 

@@ -33,6 +33,7 @@ function s:finder.find() "{{{
     return m[1]
 endfunction "}}}
 
+call cfi#register_simple_finder('ruby', s:finder)
 unlet s:finder
 
 

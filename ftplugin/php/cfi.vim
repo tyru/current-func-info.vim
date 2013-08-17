@@ -44,18 +44,18 @@ function! s:finder.get_func_name() "{{{
 endfunction "}}}
 
 function! s:finder.find_begin() "{{{
-    let NONE = 0
+    let NONE = []
 
     if search(s:BEGIN_PATTERN, 'bW') == 0
         return NONE
     endif
 
     let self.is_ready = 1
-    return line('.')
+    return [line('.'), col('.')]
 endfunction "}}}
 
 function! s:finder.find_end() "{{{
-    let NONE = 0
+    let NONE = []
     let self.is_ready = 0
 
     if search('{', 'W') == 0
@@ -66,9 +66,10 @@ function! s:finder.find_end() "{{{
         return NONE
     endif
 
-    return line('.')
+    return [line('.'), col('.')]
 endfunction "}}}
 
+call cfi#register_finder('php', s:finder)
 unlet s:finder
 
 

@@ -58,14 +58,40 @@ function! cfi#format(fmt, default) "{{{
 endfunction "}}}
 
 function! cfi#create_finder(filetype) "{{{
-    if !has_key(s:finder, a:filetype)
-        let s:finder[a:filetype] = {'_mixed': 0, 'is_ready': 0, 'phase': 0}
-    endif
-    return s:finder[a:filetype]
+    return {'_mixed': 0, 'is_ready': 0, 'phase': 0}
 endfunction "}}}
 
 function! cfi#supported_filetype(filetype) "{{{
     return !g:cfi_disable && has_key(s:finder, a:filetype)
+endfunction "}}}
+
+function! cfi#register_finder(filetype, finder) "{{{
+    if has_key(s:finder, a:filetype)
+        return
+    endif
+    if !has_key(a:finder, 'find')
+    \   || !has_key(a:finder, 'get_func_name')
+    \   || !has_key(a:finder, 'find_begin')
+    \   || !has_key(a:finder, 'find_end')
+        call s:error('cfi#register_finder(): finder for ' . a:filetype
+        \          . ' does not have all required methods:')
+        \          . ' find(), get_func_name(), find_begin(), find_end()')
+        return
+    endif
+    let s:finder[a:filetype] = a:finder
+endfunction "}}}
+
+function! cfi#register_simple_finder(filetype, finder) "{{{
+    if has_key(s:finder, a:filetype)
+        return
+    endif
+    if !has_key(a:finder, 'find')
+        call s:error('cfi#register_finder(): finder for ' . a:filetype
+        \          . ' does not have required method:')
+        \          . ' find()')
+        return
+    endif
+    let s:finder[a:filetype] = a:finder
 endfunction "}}}
 
 
@@ -158,6 +184,19 @@ function! s:has_complete_cache(this) "{{{
     \   && has_key(a:this._cache, 'begin_pos')
     \   && has_key(a:this._cache, 'end_pos')
     \   && has_key(a:this._cache, 'match')
+endfunction "}}}
+
+function! s:error(msg) "{{{
+    call s:echomsg("ErrorMsg", a:msg)
+endfunction "}}}
+
+function! s:echomsg(hl, msg) "{{{
+    execute 'echohl' a:hl
+    try
+        echomsg a:msg
+    finally
+        echohl None
+    endtry
 endfunction "}}}
 
 " }}}

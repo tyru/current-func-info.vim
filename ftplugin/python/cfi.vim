@@ -94,6 +94,7 @@ function! s:in_multiline_string(range, lnum) "{{{
     return 0
 endfunction "}}}
 
+call cfi#register_simple_finder('python', s:finder)
 unlet s:finder
 
 

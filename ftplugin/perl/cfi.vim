@@ -32,22 +32,23 @@ function! s:finder.get_func_name() "{{{
 endfunction "}}}
 
 function! s:finder.find_begin() "{{{
-    let NONE = 0
+    let NONE = []
     if search(s:BEGIN_PATTERN.s:BLOCK_FIRST_BRACE, 'bW') == 0
         return NONE
     endif
     let self.is_ready = 1
-    return line('.')
+    return [line('.'), col('.')]
 endfunction "}}}
 
 function! s:finder.find_end() "{{{
-    let NONE = 0
+    let NONE = []
     if searchpair('{', '', '}', 'W') == 0
         return NONE
     endif
-    return line('.')
+    return [line('.'), col('.')]
 endfunction "}}}
 
+call cfi#register_finder('perl', s:finder)
 unlet s:finder
 
 
