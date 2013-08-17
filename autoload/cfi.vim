@@ -26,11 +26,7 @@ function! cfi#get_func_name(...) "{{{
     if g:cfi_disable
         return ''
     endif
-
-    let ctx = {
-    \   'lnum': line('.'),
-    \   'col': col('.'),
-    \}
+    let ctx = {'lnum': line('.'), 'col': col('.')}
     let val = s:get_cache(ctx, {})
     if !empty(val)
         return val.funcname
@@ -38,7 +34,6 @@ function! cfi#get_func_name(...) "{{{
 
     let filetype = a:0 ? a:1 : &l:filetype
     let NONE = ""
-
     if !has_key(s:finder, filetype)
         return NONE
     endif
@@ -48,7 +43,7 @@ function! cfi#get_func_name(...) "{{{
         let val = s:finder[filetype].find(deepcopy(ctx))
         if type(val) == s:TYPE_DICT
             if !empty(val) && val.funcname !=# ''
-                " NOTE: s:save_cache() changes 'val' inplacely.
+                let val.changedtick = b:changedtick
                 call s:save_cache(ctx, val)
                 return val.funcname
             else
@@ -161,7 +156,8 @@ function! s:get_cache(ctx, else) "{{{
         return a:else
     endif
     let [index, found] = s:bsearch_nearest_index(b:cfi_cache, a:ctx)
-    return found ? b:cfi_cache[index] : a:else
+    return found && b:cfi_cache[index].changedtick is b:changedtick ?
+    \   b:cfi_cache[index] : a:else
 endfunction "}}}
 
 function! s:save_cache(ctx, val) "{{{
@@ -171,7 +167,6 @@ function! s:save_cache(ctx, val) "{{{
 
     " Search cache.
     let [index, found] = s:bsearch_nearest_index(b:cfi_cache, a:ctx)
-    let a:val.time = reltimestr(reltime())
     if found
         " Update cache.
         let b:cfi_cache[index] = a:val
