@@ -17,7 +17,7 @@ set cpo&vim
 let s:finder = cfi#create_finder('c')
 
 function! s:finder.get_func_name() "{{{
-    let NONE = 0
+    let NONE = ''
     let pat = '\C'.'\(\w\+\)('
     let orig_pos = [line('.'), col('.')]
 

@@ -20,7 +20,7 @@ let s:BLOCK_FIRST_BRACE = '[[:space:][:return:]]*'.'\zs{'
 let s:finder = cfi#create_finder('perl')
 
 function! s:finder.get_func_name() "{{{
-    let NONE = 0
+    let NONE = ''
     if self.phase !=# 1
         return NONE
     endif

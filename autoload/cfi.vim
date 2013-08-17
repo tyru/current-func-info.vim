@@ -12,6 +12,10 @@ runtime! plugin/cfi.vim
 
 let s:finder = {}
 
+let s:TYPE_STRING = type("")
+let s:TYPE_NUMBER = type(0)
+let s:TYPE_DICT = type({})
+
 
 
 function! cfi#load() "{{{
@@ -23,6 +27,15 @@ function! cfi#get_func_name(...) "{{{
         return ''
     endif
 
+    let ctx = {
+    \   'lnum': line('.'),
+    \   'col': col('.'),
+    \}
+    let val = s:get_cache(ctx, {})
+    if !empty(val)
+        return val.funcname
+    endif
+
     let filetype = a:0 ? a:1 : &l:filetype
     let NONE = ""
 
@@ -30,19 +43,22 @@ function! cfi#get_func_name(...) "{{{
         return NONE
     endif
 
-    if !s:finder[filetype]._mixed
-        call extend(s:finder[filetype], deepcopy(s:base_finder), 'keep')
-        let s:finder[filetype]._mixed = 1
-    endif
-
-    if !has_key(s:finder[filetype], 'find')
-        return NONE
-    endif
-
     let orig_view = winsaveview()
     try
-        let val = s:finder[filetype].find()
-        return type(val) == type("") ? val : NONE
+        let val = s:finder[filetype].find(deepcopy(ctx))
+        if type(val) == s:TYPE_DICT
+            if !empty(val) && val.funcname !=# ''
+                " NOTE: s:save_cache() changes 'val' inplacely.
+                call s:save_cache(ctx, val)
+                return val.funcname
+            else
+                return NONE
+            endif
+        elseif type(val) == s:TYPE_STRING
+            return val
+        elseif type(val) is s:TYPE_NUMBER
+            return NONE
+        endif
     finally
         call winrestview(orig_view)
     endtry
@@ -58,7 +74,7 @@ function! cfi#format(fmt, default) "{{{
 endfunction "}}}
 
 function! cfi#create_finder(filetype) "{{{
-    return {'_mixed': 0, 'is_ready': 0, 'phase': 0}
+    return extend({'is_ready': 0, 'phase': 0}, deepcopy(s:base_finder), 'keep')
 endfunction "}}}
 
 function! cfi#supported_filetype(filetype) "{{{
@@ -74,7 +90,7 @@ function! cfi#register_finder(filetype, finder) "{{{
     \   || !has_key(a:finder, 'find_begin')
     \   || !has_key(a:finder, 'find_end')
         call s:error('cfi#register_finder(): finder for ' . a:filetype
-        \          . ' does not have all required methods:')
+        \          . ' does not have all required methods:'
         \          . ' find(), get_func_name(), find_begin(), find_end()')
         return
     endif
@@ -87,7 +103,7 @@ function! cfi#register_simple_finder(filetype, finder) "{{{
     endif
     if !has_key(a:finder, 'find')
         call s:error('cfi#register_finder(): finder for ' . a:filetype
-        \          . ' does not have required method:')
+        \          . ' does not have required method:'
         \          . ' find()')
         return
     endif
@@ -99,91 +115,124 @@ endfunction "}}}
 " s:base_finder {{{
 let s:base_finder = {}
 
-function! s:base_finder.find() "{{{
-    let NONE = 0
-    let [orig_lnum, orig_col] = [line('.'), col('.')]
-    let match = NONE
-
-    if !s:has_base_finder_find_must_methods(self)
-        return NONE
-    endif
+function! s:base_finder.find(ctx) "{{{
+    let orig_pos = [a:ctx.lnum, a:ctx.col]
+    let NONE = {}
+    let ret = {}
 
     try
-        if s:has_complete_cache(self)
-            " function's begin pos -> {original pos} -> function's end pos
-            let in_function =
-            \   self.pos_is_less_than(self._cache.begin_pos, [line('.'), col('.')])
-            \   && self.pos_is_less_than([line('.'), col('.')], self._cache.end_pos)
-            if in_function
-                return self._cache.match
-            endif
-            " Left previous function block already.
-        endif
-        let self._cache = {}
-
         let self.phase = 1
-        if self.find_begin() == 0
+        let ret.begin_pos = self.find_begin()
+        if empty(ret.begin_pos)
             return NONE
         endif
         if self.is_ready
-            let match = self.get_func_name()
+            let ret.funcname = self.get_func_name()
         endif
-
-        let [begin_lnum, begin_col] = [line('.'), col('.')]
-        let self._cache.begin_pos = [begin_lnum, begin_col]
 
         let self.phase = 2
-        if self.find_end() == 0
+        let ret.end_pos = self.find_end()
+        if empty(ret.end_pos)
             return NONE
         endif
-        if self.is_ready && match is NONE
-            let match = self.get_func_name()
+        if self.is_ready && get(ret, 'funcname', '') ==# ''
+            let ret.funcname = self.get_func_name()
         endif
-        if match is NONE
+        if ret.funcname ==# ''
             return NONE
         endif
-
-        let self._cache.end_pos = [line('.'), col('.')]
 
         " function's begin pos -> {original pos} -> function's end pos
         let in_function =
-        \   self.pos_is_less_than([begin_lnum, begin_col], [orig_lnum, orig_col])
-        \   && self.pos_is_less_than([orig_lnum, orig_col], [line('.'), col('.')])
+        \   s:pos_is_less_than(ret.begin_pos, orig_pos)
+        \   && s:pos_is_less_than(orig_pos, ret.end_pos)
         if !in_function
             return NONE
         endif
 
-        let self._cache.match = match
-        return match
+        return ret
     finally
         let self.is_ready = 0
         let self.phase = 0
     endtry
 endfunction "}}}
 
-function! s:base_finder.pos_is_less_than(pos1, pos2) "{{{
+function! s:get_cache(ctx, else) "{{{
+    if !exists('b:cfi_cache')
+        return a:else
+    endif
+    let [index, found] = s:bsearch_nearest_index(b:cfi_cache, a:ctx)
+    return found ? b:cfi_cache[index] : a:else
+endfunction "}}}
+
+function! s:save_cache(ctx, val) "{{{
+    if !exists('b:cfi_cache')
+        let b:cfi_cache = []
+    endif
+
+    " Search cache.
+    let [index, found] = s:bsearch_nearest_index(b:cfi_cache, a:ctx)
+    let a:val.time = reltimestr(reltime())
+    if found
+        " Update cache.
+        let b:cfi_cache[index] = a:val
+    else
+        " Save cache.
+        call insert(b:cfi_cache, a:val)
+    endif
+
+    " TODO: Get rid of old cache.
+    " if len(b:cfi_cache) ># 30
+    "   ...
+    " endif
+endfunction "}}}
+
+function! s:bsearch_nearest_index(list, ctx) "{{{
+    if empty(a:list)
+        return [0, 0]
+    endif
+    let [begin, end] = [0, len(a:list) - 1]
+    let found = 0
+    while 1
+        let middle = (begin + end) / 2
+        let ret = s:compare_pos_to_range(a:ctx, a:list[middle])
+        if ret is 0
+            let found = 1
+            break
+        elseif ret <# 0
+            let begin = middle
+        else
+            let end = middle
+        endif
+        if middle is (begin + end) / 2
+            break
+        endif
+    endwhile
+    return [middle, found]
+endfunction "}}}
+
+function! s:compare_pos_to_range(pos, range) "{{{
+    let [lnum, col] = [a:pos.lnum, a:pos.col]
+    let [begin_lnum, begin_col] = a:range.begin_pos
+    let [end_lnum, end_col] = a:range.end_pos
+    if lnum <# begin_lnum ||
+    \   (lnum is begin_lnum && col <# begin_col)
+        return -1
+    elseif lnum ># end_lnum ||
+    \   (lnum is end_lnum && col ># end_col)
+        return 1
+    else
+        return 0
+    endif
+endfunction "}}}
+
+function! s:pos_is_less_than(pos1, pos2) "{{{
     let [lnum1, col1] = a:pos1
     let [lnum2, col2] = a:pos2
     return
-    \   lnum1 < lnum2
-    \   || (lnum1 == lnum2
-    \       && col1 < col2)
-endfunction "}}}
-
-
-function! s:has_base_finder_find_must_methods(this) "{{{
-    return
-    \   has_key(a:this, 'get_func_name')
-    \   && has_key(a:this, 'find_begin')
-    \   && has_key(a:this, 'find_end')
-endfunction "}}}
-
-function! s:has_complete_cache(this) "{{{
-    return
-    \   has_key(a:this, '_cache')
-    \   && has_key(a:this._cache, 'begin_pos')
-    \   && has_key(a:this._cache, 'end_pos')
-    \   && has_key(a:this._cache, 'match')
+    \   lnum1 <# lnum2
+    \   || (lnum1 is lnum2
+    \       && col1 <# col2)
 endfunction "}}}
 
 function! s:error(msg) "{{{

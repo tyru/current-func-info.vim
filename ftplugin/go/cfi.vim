@@ -19,7 +19,7 @@ let s:BEGIN_PATTERN = '\C'.'^\s*'.'func\>'.'\s\+'.'\((\w\+\s\+[^)]\+)\s\+\)\='.'
 let s:finder = cfi#create_finder('go')
 
 function s:finder.find() "{{{
-    let NONE = 0
+    let NONE = ''
 
     if search(s:BEGIN_PATTERN, 'bW') == 0
         return NONE

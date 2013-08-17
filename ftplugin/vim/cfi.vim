@@ -22,7 +22,7 @@ let s:END_PATTERN   = '\C'.'^\s*'.'endf*\%[unction]\>'
 let s:finder = cfi#create_finder('vim')
 
 function! s:finder.get_func_name() "{{{
-    let NONE = 0
+    let NONE = ''
     if self.phase !=# 1
         return NONE
     endif
