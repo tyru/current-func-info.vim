@@ -136,6 +136,7 @@ function! s:base_finder.find(ctx) "{{{
     let NONE = {}
     let ret = {}
     let self._result = ret
+    let self.temp = {}
 
     try
         let self.phase = 1

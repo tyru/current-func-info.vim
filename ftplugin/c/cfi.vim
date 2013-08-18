@@ -13,54 +13,16 @@ set cpo&vim
 " }}}
 
 
+let s:FUNCTION_PATTERN = '\C'.'\(\w\+\)\s*('
 
 let s:finder = cfi#create_finder('c')
 
 function! s:finder.get_func_name() "{{{
     let NONE = ''
-    if self.phase isnot 2
+    if self.phase isnot 2 || !has_key(self.temp, 'funcname')
         return NONE
     endif
-
-    let function_pattern = '\C'.'\(\w\+\)\s*('
-    let orig_pos = getpos('.')
-
-    try
-        if cursor(self.get_begin_pos())
-            return NONE
-        endif
-        if search(function_pattern, 'bW') == 0
-            return NONE
-        endif
-        let funcname_lnum = line('.')
-
-        " Jump to function-like word, and check arguments, and block.
-        for [fn; args] in [
-        \   ['search', '(', 'W'],
-        \   ['searchpair', '(', '', ')'],
-        \   ['search', '{'],
-        \]
-            if call(fn, args) == 0
-                return NONE
-            endif
-        endfor
-
-        if !self.pos_between(
-        \   [funcname_lnum, 1],
-        \   getpos('.')[1:2],
-        \   self.get_end_pos())
-            " current position is not in a function.
-            return NONE
-        endif
-
-        let m = matchlist(getline(funcname_lnum), function_pattern)
-        if empty(m)
-            return NONE
-        endif
-        return m[1]
-    finally
-        call setpos('.', orig_pos)
-    endtry
+    return self.temp.funcname
 endfunction "}}}
 
 function! s:finder.find_begin() "{{{
@@ -69,9 +31,41 @@ function! s:finder.find_begin() "{{{
 
     let vb = &vb
     setlocal vb t_vb=
-    normal! [[
-    let &vb = vb
+    try
+        " Jump to function-like word, and check arguments, and block.
+        while 1
+            if search(s:FUNCTION_PATTERN, 'bW') == 0
+                return NONE
+            endif
+            " Function name when filetype=c has nothing about syntax info.
+            " (without this condition, if-statement is recognized as function)
+            if !empty(synstack(line('.'), col('.')))
+                continue
+            endif
+            let funcname = get(matchlist(getline('.'), s:FUNCTION_PATTERN), 1, '')
+            if funcname ==# ''
+                return NONE
+            endif
+            for [fn; args] in [
+            \   ['search', '(', 'W'],
+            \   ['searchpair', '(', '', ')'],
+            \]
+                if call(fn, args) == 0
+                    return NONE
+                endif
+            endfor
+            if join(getline('.', '$'), '')[col('.') :] =~# '\s*[^;]'
+                let self.temp.funcname = funcname
+                break
+            endif
+        endwhile
+    finally
+        let &vb = vb
+    endtry
 
+    if search('{') == 0
+        return NONE
+    endif
     if line('.') == orig_lnum && col('.') == orig_col
         return NONE
     endif
@@ -88,6 +82,9 @@ function! s:finder.find_end() "{{{
     let &vb = vb
 
     if line('.') == orig_lnum && col('.') == orig_col
+        return NONE
+    endif
+    if getline('.')[col('.')-1] !=# '}'
         return NONE
     endif
     let self.is_ready = 1
