@@ -68,7 +68,10 @@ cfi#create_finder({filetype})				*cfi#create_finder()*
 	See ftplugin/*.vim for the details.
 
 cfi#supported_filetype({filetype})				*cfi#supported_filetype()*
+cfi#supported_filetypes({filetype})				*cfi#supported_filetypes()*
 	Return boolean value if {filetype} is supported.
+	If {filetype} is dot-separeted,
+	return true if all filetypes are supported.
 
 }}}
 ------------------------------------------------------------------------------

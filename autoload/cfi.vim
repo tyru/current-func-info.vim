@@ -72,7 +72,15 @@ function! cfi#create_finder(filetype) "{{{
 endfunction "}}}
 
 function! cfi#supported_filetype(filetype) "{{{
-    return !g:cfi_disable && has_key(s:finder, a:filetype)
+    return cfi#supported_filetypes(a:filetype)
+endfunction "}}}
+
+function! cfi#supported_filetypes(filetypes) "{{{
+    let ftlist = split(a:filetypes, '\.')
+    if g:cfi_disable || empty(ftlist)
+        return 0
+    endif
+    return len(ftlist) is len(filter(copy(ftlist), 'has_key(s:finder, v:val)'))
 endfunction "}}}
 
 function! cfi#register_finder(filetype, finder) "{{{
