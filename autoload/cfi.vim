@@ -159,6 +159,10 @@ function! s:base_finder.find(ctx) "{{{
     endtry
 endfunction "}}}
 
+" }}}
+
+
+
 function! s:get_cache(ctx, else) "{{{
     if exists('b:cfi_last_result')
         let key = join([b:changedtick, a:ctx.lnum, a:ctx.col], '|')
@@ -265,8 +269,6 @@ function! s:echomsg(hl, msg) "{{{
         echohl None
     endtry
 endfunction "}}}
-
-" }}}
 
 
 
