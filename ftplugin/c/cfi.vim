@@ -26,6 +26,9 @@ function! s:finder.get_func_name() "{{{
     let orig_pos = getpos('.')
 
     try
+        if cursor(self.get_begin_pos())
+            return NONE
+        endif
         if search(function_pattern, 'bW') == 0
             return NONE
         endif
@@ -66,7 +69,7 @@ function! s:finder.find_begin() "{{{
 
     let vb = &vb
     setlocal vb t_vb=
-    normal! [m
+    normal! [[
     let &vb = vb
 
     if line('.') == orig_lnum && col('.') == orig_col
@@ -81,7 +84,7 @@ function! s:finder.find_end() "{{{
 
     let vb = &vb
     setlocal vb t_vb=
-    normal! ]M
+    normal! ][
     let &vb = vb
 
     if line('.') == orig_lnum && col('.') == orig_col
