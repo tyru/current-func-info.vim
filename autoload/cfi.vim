@@ -160,31 +160,47 @@ function! s:base_finder.find(ctx) "{{{
 endfunction "}}}
 
 function! s:get_cache(ctx, else) "{{{
-    if !exists('b:cfi_cache')
-        return a:else
+    if exists('b:cfi_last_result')
+        let key = join([b:changedtick, a:ctx.lnum, a:ctx.col], '|')
+        if has_key(b:cfi_last_result, key)
+            return b:cfi_last_result[key]
+        endif
     endif
-    let [index, found] = s:bsearch_nearest_index(b:cfi_cache, a:ctx)
-    return found && b:cfi_cache[index].changedtick is b:changedtick ?
-    \   b:cfi_cache[index] : a:else
+    if exists('b:cfi_cache_list')
+        let [index, found] = s:bsearch_nearest_index(b:cfi_cache_list, a:ctx)
+        if found && b:cfi_cache_list[index].changedtick is b:changedtick
+            return b:cfi_cache_list[index]
+        endif
+    endif
+    return a:else
 endfunction "}}}
 
 function! s:save_cache(ctx, val) "{{{
-    if !exists('b:cfi_cache')
-        let b:cfi_cache = []
+    call s:save_cache_list(a:ctx, a:val)
+    if !exists('b:cfi_last_result')
+        let b:cfi_last_result = {}
+    endif
+    let key = join([b:changedtick, a:ctx.lnum, a:ctx.col], '|')
+    let b:cfi_last_result = {key : a:val}
+endfunction "}}}
+
+function! s:save_cache_list(ctx, val) "{{{
+    if !exists('b:cfi_cache_list')
+        let b:cfi_cache_list = []
     endif
 
     " Search cache.
-    let [index, found] = s:bsearch_nearest_index(b:cfi_cache, a:ctx)
+    let [index, found] = s:bsearch_nearest_index(b:cfi_cache_list, a:ctx)
     if found
         " Update cache.
-        let b:cfi_cache[index] = a:val
+        let b:cfi_cache_list[index] = a:val
     else
         " Save cache.
-        call insert(b:cfi_cache, a:val)
+        call insert(b:cfi_cache_list, a:val)
     endif
 
     " TODO: Get rid of old cache.
-    " if len(b:cfi_cache) ># 30
+    " if len(b:cfi_cache_list) ># 30
     "   ...
     " endif
 endfunction "}}}
