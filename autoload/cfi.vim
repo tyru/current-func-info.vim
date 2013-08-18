@@ -43,7 +43,7 @@ function! cfi#get_func_name(...) "{{{
         let val = s:finder[filetype].find(deepcopy(ctx))
         if type(val) == s:TYPE_DICT
             if !empty(val) && val.funcname !=# ''
-                let val.changedtick = b:changedtick
+                let val.version = s:get_current_version()
                 call s:save_cache(ctx, val)
                 return val.funcname
             else
@@ -57,6 +57,16 @@ function! cfi#get_func_name(...) "{{{
         call winrestview(orig_view)
     endtry
 endfunction "}}}
+
+if has('*undotree')
+    function! s:get_current_version() "{{{
+        return undotree().seq_cur
+    endfunction "}}}
+else
+    function! s:get_current_version() "{{{
+        return b:changedtick
+    endfunction "}}}
+endif
 
 function! cfi#format(fmt, default) "{{{
     let name = cfi#get_func_name()
@@ -165,14 +175,14 @@ endfunction "}}}
 
 function! s:get_cache(ctx, else) "{{{
     if exists('b:cfi_last_result')
-        let key = join([b:changedtick, a:ctx.lnum, a:ctx.col], '|')
+        let key = join([s:get_current_version(), a:ctx.lnum, a:ctx.col], '|')
         if has_key(b:cfi_last_result, key)
             return b:cfi_last_result[key]
         endif
     endif
     if exists('b:cfi_cache_list')
         let [index, found] = s:bsearch_nearest_index(b:cfi_cache_list, a:ctx)
-        if found && b:cfi_cache_list[index].changedtick is b:changedtick
+        if found && b:cfi_cache_list[index].version is s:get_current_version()
             return b:cfi_cache_list[index]
         endif
     endif
@@ -184,7 +194,7 @@ function! s:save_cache(ctx, val) "{{{
     if !exists('b:cfi_last_result')
         let b:cfi_last_result = {}
     endif
-    let key = join([b:changedtick, a:ctx.lnum, a:ctx.col], '|')
+    let key = join([s:get_current_version(), a:ctx.lnum, a:ctx.col], '|')
     let b:cfi_last_result = {key : a:val}
 endfunction "}}}
 
