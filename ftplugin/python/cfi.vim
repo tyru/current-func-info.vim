@@ -18,7 +18,7 @@ let s:BEGIN_PATTERN = '\C'.'^\s*'.'def\>'.'\s\+'.'\(\w\+\)'
 
 let s:finder = cfi#create_finder('python')
 
-function! s:finder.find() "{{{
+function! s:finder.find(ctx) "{{{
     let NONE = ''
     let orig_lnum = line('.')
     let indent_num = s:get_indent_num('.')
