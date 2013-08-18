@@ -27,7 +27,11 @@ function! cfi#get_func_name(...) "{{{
     if g:cfi_disable
         return NONE
     endif
-    let filetype = cfi#choose_finder_filetype(a:0 ? a:1 : &l:filetype)
+    let dotfiletypes = a:0 ? a:1 : &l:filetype
+    if dotfiletypes ==# ''
+        return NONE
+    endif
+    let filetype = cfi#choose_finder_filetype(dotfiletypes)
     if filetype ==# ''
         return NONE
     endif
@@ -84,17 +88,14 @@ function! cfi#supported_filetype(filetype) "{{{
     return cfi#supported_filetypes(a:filetype)
 endfunction "}}}
 
-function! cfi#supported_filetypes(filetypes) "{{{
-    return cfi#choose_finder_filetype(a:filetypes) !=# ''
+function! cfi#supported_filetypes(dotfiletypes) "{{{
+    return cfi#choose_finder_filetype(a:dotfiletypes) !=# ''
 endfunction "}}}
 
-function! cfi#choose_finder_filetype(filetypes) "{{{
-    let ftlist = split(a:filetypes, '\.')
-    if g:cfi_disable || empty(ftlist)
-        return 0
-    endif
-    call filter(ftlist, 'has_key(s:finder, v:val)')
-    return get(ftlist, 0, '')
+function! cfi#choose_finder_filetype(dotfiletypes) "{{{
+    return get(
+    \   filter(split(a:dotfiletypes, '\.'), 'has_key(s:finder, v:val)'),
+    \   0, '')
 endfunction "}}}
 
 function! cfi#register_finder(filetype, finder) "{{{
