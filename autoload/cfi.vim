@@ -27,9 +27,9 @@ function! cfi#get_func_name(...) "{{{
         return ''
     endif
     let ctx = {'lnum': line('.'), 'col': col('.')}
-    let val = s:get_cache(ctx, {})
-    if !empty(val)
-        return val.funcname
+    let cache = s:get_cache(ctx, {})
+    if !empty(cache)
+        return cache.funcname
     endif
 
     let filetype = a:0 ? a:1 : &l:filetype
