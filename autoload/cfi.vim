@@ -23,19 +23,18 @@ function! cfi#load() "{{{
 endfunction "}}}
 
 function! cfi#get_func_name(...) "{{{
+    let NONE = ""
     if g:cfi_disable
-        return ''
+        return NONE
+    endif
+    let filetype = cfi#choose_finder_filetype(a:0 ? a:1 : &l:filetype)
+    if filetype ==# ''
+        return NONE
     endif
     let ctx = {'lnum': line('.'), 'col': col('.')}
     let cache = s:get_cache(ctx, {})
     if !empty(cache)
         return cache.funcname
-    endif
-
-    let filetype = a:0 ? a:1 : &l:filetype
-    let NONE = ""
-    if !has_key(s:finder, filetype)
-        return NONE
     endif
 
     let orig_view = winsaveview()
@@ -86,11 +85,16 @@ function! cfi#supported_filetype(filetype) "{{{
 endfunction "}}}
 
 function! cfi#supported_filetypes(filetypes) "{{{
+    return cfi#choose_finder_filetype(a:filetypes) !=# ''
+endfunction "}}}
+
+function! cfi#choose_finder_filetype(filetypes) "{{{
     let ftlist = split(a:filetypes, '\.')
     if g:cfi_disable || empty(ftlist)
         return 0
     endif
-    return len(ftlist) is len(filter(copy(ftlist), 'has_key(s:finder, v:val)'))
+    call filter(ftlist, 'has_key(s:finder, v:val)')
+    return get(ftlist, 0, '')
 endfunction "}}}
 
 function! cfi#register_finder(filetype, finder) "{{{
