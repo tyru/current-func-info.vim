@@ -131,6 +131,7 @@ function! s:base_finder.find(ctx) "{{{
     let orig_pos = [a:ctx.lnum, a:ctx.col]
     let NONE = {}
     let ret = {}
+    let self._result = ret
 
     try
         let self.phase = 1
@@ -155,10 +156,7 @@ function! s:base_finder.find(ctx) "{{{
         endif
 
         " function's begin pos -> {original pos} -> function's end pos
-        let in_function =
-        \   s:pos_is_less_than(ret.begin_pos, orig_pos)
-        \   && s:pos_is_less_than(orig_pos, ret.end_pos)
-        if !in_function
+        if !self.in_function(orig_pos)
             return NONE
         endif
 
@@ -167,6 +165,27 @@ function! s:base_finder.find(ctx) "{{{
         let self.is_ready = 0
         let self.phase = 0
     endtry
+endfunction "}}}
+
+function! s:base_finder.in_function(pos) "{{{
+    return self.pos_between(
+    \   self._result.begin_pos,
+    \   a:pos,
+    \   self._result.end_pos,
+    \)
+endfunction "}}}
+
+function! s:base_finder.pos_between(pos1, pos2, pos3) "{{{
+    return s:pos_is_less_than(a:pos1, a:pos2)
+    \   && s:pos_is_less_than(a:pos2, a:pos3)
+endfunction "}}}
+
+function! s:base_finder.get_begin_pos() "{{{
+    return self._result.begin_pos
+endfunction "}}}
+
+function! s:base_finder.get_end_pos() "{{{
+    return self._result.end_pos
 endfunction "}}}
 
 " }}}
