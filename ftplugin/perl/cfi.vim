@@ -15,7 +15,7 @@ set cpo&vim
 
 
 let s:PROTOTYPE_DEF = '([^()]*)'
-let s:CODE_ATTR = '\%\('.'\s*:\s*\%\(.\+\)'.'\)\='
+let s:CODE_ATTR = '\%('.'\s*:\s*\%(.\+\)'.'\)\='
 let s:BEGIN_PATTERN = '\C'.'^\s*'.'sub\>'.'\s\+'.'\(\w\+\)'.'\%('.'\s*'.s:PROTOTYPE_DEF.'\)\='.s:CODE_ATTR
 let s:BLOCK_FIRST_BRACE = '[[:space:][:return:]]*'.'\zs{'
 
