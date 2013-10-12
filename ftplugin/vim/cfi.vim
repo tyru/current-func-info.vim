@@ -15,7 +15,7 @@ set cpo&vim
 
 
 let s:BEGIN_PATTERN = '\C'.'^\s*'.'fu\%[nction]\>'.'!\='.'\s\+'.'\([^(]\+\)'.'('
-let s:END_PATTERN   = '\C'.'^\s*'.'endf*\%[unction]\>'
+let s:END_PATTERN   = '\C'.'^\s*'.'endf\%[unction]\>'
 
 
 
