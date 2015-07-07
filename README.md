@@ -6,13 +6,14 @@ It is very useful when the function name is long, you dont have to scroll up to 
 
 Supported Languages
 -------------------
-1. c
-2. go
-3. perl
-4. php
-5. python
-6. ruby
-7. vimL
+1. C
+2. Go
+3. Perl
+4. PHP
+5. Python
+6. Ruby
+7. VimL
+8. PL/SQL
 
 Installation
 ============
