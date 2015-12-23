@@ -78,7 +78,7 @@ function! s:finder.find_end() "{{{
 
     let vb = &vb
     setlocal vb t_vb=
-    normal! ][
+    keepjumps normal! ][
     let &vb = vb
 
     if line('.') == orig_lnum && col('.') == orig_col
