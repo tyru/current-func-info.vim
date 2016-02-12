@@ -5,7 +5,7 @@ scriptencoding utf-8
 " ============================================================================
 
 if get(g:, 'cfi_disable') || get(g:, 'loaded_cfi_ftplugin_javascript')
-    finish
+  finish
 endif
 let g:loaded_cfi_ftplugin_javascript = 1
 
@@ -14,13 +14,6 @@ let s:save_cpo = &cpo
 set cpo&vim
 " }}}
 
-" ============================================================================
-" Options
-" ============================================================================
-
-if !exists('g:cfi_javascript_show_params')
-    let g:cfi_javascript_show_params = 0
-endif
 
 " ============================================================================
 " Regexes
@@ -28,11 +21,14 @@ endif
 " ============================================================================
 
 " anystring
-let s:FUNCTION_NAME       = '\(\S\+\)'
+let s:FUNCTION_NAME       = '\([.[:alnum:]_\[\]]\+\)'
 
 " matches es6 classes and generator functions
 " @TODO es6 member function shorthand `func() {}`
-let s:FUNCTION_TYPE       = '\(get\|set\|static\|function\*\=\)'
+let s:FUNCTION_TYPE       = '\('
+      \.  'get\|set\|static\|'
+      \.  'function' . '\s*\*\='
+      \.'\)'
 
 " (...)
 let s:FUNCTION_ARGUMENTS  = '\(' . '([^)]*)' . '\)'
@@ -47,13 +43,13 @@ let s:VARIABLE = ''
 
 let s:ANONYMOUS_FUNCTION = '\%('
       \.  s:FUNCTION_TYPE
-      \.  '\s\+'
+      \.  '\s*'
       \.  s:FUNCTION_ARGUMENTS
       \.'\)'
 
 let s:NAMED_FUNCTION = '\%('
       \.  s:FUNCTION_TYPE
-      \.  '\s\+'
+      \.  '\s*'
       \.  s:FUNCTION_NAME
       \.  '\s*'
       \.  s:FUNCTION_ARGUMENTS
@@ -130,6 +126,12 @@ function! s:finder.get_func_name() "{{{
     return ''
   endif
 
+  " trim extra spaces around `function  *   ` so it becomes `function* `
+  " this follows MDN style and eslint default for generator-star-spacing
+  let l:function_type = substitute(l:function_type,
+        \ '\(function\)\s*\(\*\)\=\s*',
+        \ '\1\2', '')
+
   return l:variable_name
         \. (!empty(l:function_type) ? l:function_type . ' ' : '')
         \. l:function_name
@@ -164,7 +166,7 @@ function! s:finder.find_end() "{{{
     return []
   endif
 
-    return [line('.'), col('.')]
+  return [line('.'), col('.')]
 endfunction "}}}
 
 " ============================================================================
