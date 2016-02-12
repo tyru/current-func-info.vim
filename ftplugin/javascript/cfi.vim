@@ -64,8 +64,14 @@ let s:NAMED_FUNCTION = '\%('
 let s:ARROW_FUNCTION = ''
       \.  '\%(' . s:FUNCTION_ARGUMENTS . '\s*=>\s*' . '\)'
 
+" Pattern that triggers parsing of matches
+" For the arrow function we also check that there is a function body (so we
+" don't start on arrow function with only return, e.g. `(arr) => arr.join('')`
 let s:BEGIN_PATTERN = '\C'
-      \.'\%(' . s:ANONYMOUS_FUNCTION . '\|' . s:NAMED_FUNCTION .'\)\{1}'
+      \. '\%(' . s:ANONYMOUS_FUNCTION
+      \.  '\|' . s:NAMED_FUNCTION
+      \.  '\|' . s:ARROW_FUNCTION . '\s*{'
+      \. '\)\{1}'
 
 " ============================================================================
 " Create cfi finder dictionary of functions
@@ -137,8 +143,9 @@ endfunction "}}}
 " Find line where function starts
 " @return {List}
 function! s:finder.find_begin() "{{{
-  "if search(s:BEGIN_PATTERN, 'bW') == 0
-  if search(').*{', 'bW') == 0
+  " loose function check, just look for `) {`
+  "if search(').*{', 'bW') == 0
+  if search(s:BEGIN_PATTERN, 'bW') == 0
     return []
   endif
 
