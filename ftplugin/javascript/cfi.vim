@@ -38,8 +38,7 @@ let s:FUNCTION_NAME       = '\(\%([^[:blank:]()*]\)\+\)'
 " matches es6 classes and generator functions
 " @TODO es6 member function shorthand `func() {}`
 let s:FUNCTION_TYPE       = '\('
-      \.  'get\|set\|static\|'
-      \.  'function' . '\s*\*\='
+      \.  'get\|set\|static\|function'
       \.'\)'
 
 " (...)
@@ -58,13 +57,13 @@ let s:VARIABLE = '\%('
 
 let s:ANONYMOUS_FUNCTION = '\%('
       \.  s:FUNCTION_TYPE
-      \.  '\s*'
+      \.  '[[:blank:]*]\+'
       \.  s:FUNCTION_ARGUMENTS
       \.'\)'
 
 let s:NAMED_FUNCTION = '\%('
       \.  s:FUNCTION_TYPE
-      \.  '\s*'
+      \.  '[[:blank:]*]\+'
       \.  s:FUNCTION_NAME
       \.  '\s*'
       \.  s:FUNCTION_ARGUMENTS
