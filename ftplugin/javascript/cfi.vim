@@ -18,10 +18,29 @@ set cpo&vim
 " Options
 " ============================================================================
 
-" whether or not to show type of function assignment, e.g. 'named expression'
-" or 'anon expression' or 'anon' or 'arrow'
-let g:cfi_javascript_show_assignment =
-      \ get(g:, 'cfi_javascript_show_assignment', 0)
+" Configure display verbosity
+" By default, show everything
+let s:show_defaults = {
+      \   'assignment': 1,
+      \   'variable_name': 1,
+      \   'function_type': 1,
+      \   'function_name': 1,
+      \   'function_arguments': 1,
+      \   'function_body': 1,
+      \ }
+if exists('g:cfi_javascript_show')
+  " Add any missing values, preserve the user settings
+  call extend(g:cfi_javascript_show, s:show_defaults, 'keep')
+else
+  let g:cfi_javascript_show = s:show_defaults
+endif
+
+" Deprecation warnings for the old style config
+" Remove it after a while (couple months, at least
+" "Now": 2016-03-13
+if exists('g:cfi_javascript_show_assignment')
+  echohl WarningMsg | echom 'CFI: g:cfi_javascript_show_assignment deprecated, use g:cfi_javascript_show' | echohl None
+endif
 
 " ============================================================================
 " Regexes
@@ -156,13 +175,17 @@ function! s:finder.get_func_name() "{{{
         \ '\(function\)\s*\(\*\)\=\s*',
         \ '\1\2', '')
 
-  return (g:cfi_javascript_show_assignment ? l:assignment . ': ' : '')
-        \. l:variable_name
-        \. (!empty(l:function_type) ? l:function_type . ' ' : '')
-        \. l:function_name
-        \. l:function_arguments
-        \. l:function_body
-
+  let l:assignment .= ': '
+  let l:function_type .= (!empty(l:function_type) ? ' ' : '')
+  " Use the setting dict to selectively show parts of the name
+  " Don't let the user break this, cycle through our dictionary for keys
+  let l:result = ''
+  for var in keys(s:show_defaults)
+    if g:cfi_javascript_show[var]
+      let l:result .= l:{var}
+    endif
+  endfor
+  return l:result
 endfunction "}}}
 
 " Find line where function starts

@@ -24,6 +24,8 @@ Introduction		|cfi-introduction|
 Interface			|cfi-interface|
   Functions			|cfi-functions|
   Variables			|cfi-variables|
+    PHP				|cfi-lang-php|
+    JavaScript			|cfi-lang-javascript|
 Changelog			|cfi-changelog|
 Thanks				|cfi-thanks|
 
@@ -77,9 +79,6 @@ cfi#supported_filetypes({filetype})				*cfi#supported_filetypes()*
 ------------------------------------------------------------------------------
 VARIABLES					*cfi-variables* {{{
 
-All
-------
-
 g:cfi_disable					*g:cfi_disable*
 	If true, disable all features and ftplugins.
 
@@ -87,12 +86,33 @@ g:loaded_cfi_ftplugin_{lang}	*g:loaded_cfi_ftplugin*
 	If true, disable the load of ftplugin/{lang}/cfi.vim
 
 
-PHP
+PHP                                      *cfi-lang-php*
 ------
 
 g:cfi_php_show_params			*g:cfi_php_show_params*
 							(Default: 0)
 	Include arguments to |cfi#get_func_name()|'s return value.
+
+
+JavaScript                                      *cfi-lang-javascript*
+-----
+
+g:cfi_javascript_show                   *g:cfi_javascript_show*
+
+	Configure the javascript function display. Include the keys you want
+	and set them to 0 to disable their display.
+	Defaults to showing everything.
+
+>
+  let g:cfi_javascript_show = {
+	\   'assignment': 0,
+	\   'variable_name': 0,
+	\   'function_type': 0,
+	\   'function_name': 0,
+	\   'function_arguments': 0,
+	\   'function_body': 0,
+	\ }
+<
 
 }}}
 }}}
