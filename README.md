@@ -14,6 +14,7 @@ Supported Languages
 6. Ruby
 7. VimL
 8. PL/SQL
+9. Zsh
 
 Installation
 ============
