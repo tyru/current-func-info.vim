@@ -15,11 +15,12 @@ Supported Languages
 7. VimL
 8. PL/SQL
 9. Zsh
+10. Elixir
 
 Installation
 ============
 
-Manual 
+Manual
 ------
 Copy the files plugin, ftplugin, doc, autoload directories into the related directories on your runtime path.
 
