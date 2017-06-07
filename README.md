@@ -44,12 +44,14 @@ Using [Vundle](https://github.com/gmarik/vundle)
 Configuration
 =============
 
-
-Map your shortcut key to echo the current function name on the status bar.
-
-Add this line in your .vimrc file.
+Echo the current function name.
 
 ```VimL
 nnoremap <C-g>f :echo cfi#format("%s", "")<CR>
 ```
 
+Or you can show the current function name on statusline.
+
+```VimL
+let &statusline .= ' [%{cfi#format("%s", "")}]'
+```
