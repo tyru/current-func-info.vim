@@ -14,53 +14,46 @@ set cpo&vim
 
 
 
-let s:BEGIN_PATTERN = '\C'.'^\s*'.'def\>'.'\s\+'.'\(\w\+\)'
+let s:BEGIN_PATTERN = '\C'.'^\s*'.'\(def\|class\)\>'.'\s\+'.'\(\w\+\)'
 
 let s:finder = cfi#create_finder('python')
 
 function! s:finder.find(ctx) "{{{
-    let NONE = ''
-    let orig_lnum = line('.')
-    let indent_num = s:get_indent_num('.')
     let save_view = winsaveview()
 
-    try
-        let pos = search(s:BEGIN_PATTERN, 'bW')
-        if pos == 0
-            return NONE
-        endif
-        " ...now at function name pos.
-
-        " Function's indent must be lower than indent_num.
-        if s:get_indent_num('.') >= indent_num
-            return NONE
+    let indent_num = indent(prevnonblank('.'))
+    let namespace = []
+    while 1
+        let decl_pos = search(s:BEGIN_PATTERN, 'bW')
+        if decl_pos == 0
+            break
         endif
 
-        " NOTE: s:get_multiline_string_range() changes current pos.
-        " So save info about pos before calling it.
-        let n = s:get_indent_num('.')
-        let [begin, end] = [line('.'), orig_lnum]
-        let multi_str_range = s:get_multiline_string_range(begin, end)
-        " The range from function name to current pos
-        " must has stepwise indent num.
-        for lnum in range(begin, end)
-            if s:get_indent_num(lnum) < n && !s:in_multiline_string(multi_str_range, lnum)
-                return NONE
-            endif
-        endfor
-
-        let m = matchlist(getline(begin), s:BEGIN_PATTERN)
-        if empty(m)
-            return NONE
+        let decl_indent_num = indent(prevnonblank('.'))
+        if decl_indent_num < indent_num
+            let m = matchlist(getline(decl_pos), s:BEGIN_PATTERN)
+            let indent_num = decl_indent_num
+            call insert(namespace, m[2])
         endif
-        return m[1]
-    finally
-        call winrestview(save_view)
-    endtry
+    endwhile
+
+    call winrestview(save_view)
+
+    return join(namespace, '.')
 endfunction "}}}
 
 function! s:get_indent_num(lnum) "{{{
-    return strlen(matchstr(getline(a:lnum), '^[ \t]*'))
+    let lnum = a:lnum
+    if lnum == "."
+        let lnum = line(lnum)
+    endif
+    if lnum == 0
+        return 0
+    endif
+    if match(getline(lnum), '^[ \t]*$') >= 0
+        return s:get_indent_num(lnum - 1)
+    endif
+    return strlen(matchstr(getline(lnum), '^[ \t]*'))
 endfunction "}}}
 
 function! s:get_multiline_string_range(search_begin, search_end) "{{{
