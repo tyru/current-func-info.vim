@@ -42,51 +42,6 @@ function! s:finder.find(ctx) "{{{
     return join(namespace, '.')
 endfunction "}}}
 
-function! s:get_indent_num(lnum) "{{{
-    let lnum = a:lnum
-    if lnum == "."
-        let lnum = line(lnum)
-    endif
-    if lnum == 0
-        return 0
-    endif
-    if match(getline(lnum), '^[ \t]*$') >= 0
-        return s:get_indent_num(lnum - 1)
-    endif
-    return strlen(matchstr(getline(lnum), '^[ \t]*'))
-endfunction "}}}
-
-function! s:get_multiline_string_range(search_begin, search_end) "{{{
-    let MULTI_STR_RX = '\%('.'"""'.'\|'."'''".'\)'
-    let range = []
-
-    while 1
-        " begin of multi string
-        let begin = search(MULTI_STR_RX, 'W')
-        if begin == 0 || !(a:search_begin <= begin && begin <= a:search_end)
-            return range
-        endif
-        " end of multi string
-        let end = search(MULTI_STR_RX, 'W')
-        if end == 0 || !(a:search_begin <= end && end <= a:search_end)
-            return range
-        endif
-
-        call add(range, [begin, end])
-    endwhile
-endfunction "}}}
-
-function! s:in_multiline_string(range, lnum) "{{{
-    " Ignore `begin` and `end` lnum.
-    " Because they are lnums where """ or ''' is.
-    for [begin, end] in a:range
-        if begin < a:lnum && a:lnum < end
-            return 1
-        endif
-    endfor
-    return 0
-endfunction "}}}
-
 call cfi#register_simple_finder('python', s:finder)
 unlet s:finder
 
