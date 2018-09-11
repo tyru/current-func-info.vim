@@ -30,7 +30,7 @@ function! s:finder.find(ctx) "{{{
         endif
 
         let decl_indent_num = indent(prevnonblank('.'))
-        if decl_indent_num < indent_num
+        if decl_indent_num < indent_num || len(namespace) == 0
             let m = matchlist(getline(decl_pos), s:BEGIN_PATTERN)
             let indent_num = decl_indent_num
             call insert(namespace, m[2])
