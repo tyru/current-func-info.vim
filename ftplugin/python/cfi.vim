@@ -21,7 +21,8 @@ let s:finder = cfi#create_finder('python')
 function! s:finder.find(ctx) "{{{
     let save_view = winsaveview()
 
-    let indent_num = indent(prevnonblank('.'))
+    let ini_pos = prevnonblank('.')
+    let indent_num = indent(ini_pos)
     let namespace = []
     while 1
         let decl_pos = search(s:BEGIN_PATTERN, 'bW')
@@ -30,7 +31,7 @@ function! s:finder.find(ctx) "{{{
         endif
 
         let decl_indent_num = indent(prevnonblank('.'))
-        if decl_indent_num < indent_num || len(namespace) == 0
+        if decl_indent_num < indent_num || (len(namespace) == 0 && ini_pos == decl_pos)
             let m = matchlist(getline(decl_pos), s:BEGIN_PATTERN)
             let indent_num = decl_indent_num
             call insert(namespace, m[2])
