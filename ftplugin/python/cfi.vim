@@ -14,84 +14,33 @@ set cpo&vim
 
 
 
-let s:BEGIN_PATTERN = '\C'.'^\s*'.'def\>'.'\s\+'.'\(\w\+\)'
+let s:BEGIN_PATTERN = '\C'.'^\s*'.'\(def\|class\)\>'.'\s\+'.'\(\w\+\)'
 
 let s:finder = cfi#create_finder('python')
 
 function! s:finder.find(ctx) "{{{
-    let NONE = ''
-    let orig_lnum = line('.')
-    let indent_num = s:get_indent_num('.')
     let save_view = winsaveview()
 
-    try
-        let pos = search(s:BEGIN_PATTERN, 'bW')
-        if pos == 0
-            return NONE
-        endif
-        " ...now at function name pos.
-
-        " Function's indent must be lower than indent_num.
-        if s:get_indent_num('.') >= indent_num
-            return NONE
-        endif
-
-        " NOTE: s:get_multiline_string_range() changes current pos.
-        " So save info about pos before calling it.
-        let n = s:get_indent_num('.')
-        let [begin, end] = [line('.'), orig_lnum]
-        let multi_str_range = s:get_multiline_string_range(begin, end)
-        " The range from function name to current pos
-        " must has stepwise indent num.
-        for lnum in range(begin, end)
-            if s:get_indent_num(lnum) < n && !s:in_multiline_string(multi_str_range, lnum)
-                return NONE
-            endif
-        endfor
-
-        let m = matchlist(getline(begin), s:BEGIN_PATTERN)
-        if empty(m)
-            return NONE
-        endif
-        return m[1]
-    finally
-        call winrestview(save_view)
-    endtry
-endfunction "}}}
-
-function! s:get_indent_num(lnum) "{{{
-    return strlen(matchstr(getline(a:lnum), '^[ \t]*'))
-endfunction "}}}
-
-function! s:get_multiline_string_range(search_begin, search_end) "{{{
-    let MULTI_STR_RX = '\%('.'"""'.'\|'."'''".'\)'
-    let range = []
-
+    let ini_pos = prevnonblank('.')
+    let indent_num = indent(ini_pos)
+    let namespace = []
     while 1
-        " begin of multi string
-        let begin = search(MULTI_STR_RX, 'W')
-        if begin == 0 || !(a:search_begin <= begin && begin <= a:search_end)
-            return range
-        endif
-        " end of multi string
-        let end = search(MULTI_STR_RX, 'W')
-        if end == 0 || !(a:search_begin <= end && end <= a:search_end)
-            return range
+        let decl_pos = search(s:BEGIN_PATTERN, 'bW')
+        if decl_pos == 0
+            break
         endif
 
-        call add(range, [begin, end])
+        let decl_indent_num = indent(prevnonblank('.'))
+        if decl_indent_num < indent_num || (len(namespace) == 0 && ini_pos == decl_pos)
+            let m = matchlist(getline(decl_pos), s:BEGIN_PATTERN)
+            let indent_num = decl_indent_num
+            call insert(namespace, m[2])
+        endif
     endwhile
-endfunction "}}}
 
-function! s:in_multiline_string(range, lnum) "{{{
-    " Ignore `begin` and `end` lnum.
-    " Because they are lnums where """ or ''' is.
-    for [begin, end] in a:range
-        if begin < a:lnum && a:lnum < end
-            return 1
-        endif
-    endfor
-    return 0
+    call winrestview(save_view)
+
+    return join(namespace, '.')
 endfunction "}}}
 
 call cfi#register_simple_finder('python', s:finder)
