@@ -14,7 +14,7 @@ set cpo&vim
 
 
 
-let s:BEGIN_PATTERN = '\C'.'^\s*'.'\(def\|class\)\>'.'\s\+'.'\(\w\+\)'
+let s:BEGIN_PATTERN = '\C'.'^\s*'.'\(def\|class\|async def\)\>'.'\s\+'.'\(\w\+\)'
 
 let s:finder = cfi#create_finder('python')
 
