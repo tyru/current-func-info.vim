@@ -127,7 +127,11 @@ function! cfi#register_simple_finder(filetype, finder) "{{{
     let s:finder[a:filetype] = a:finder
 endfunction "}}}
 
-
+function! cfi#get_finder(filetype) "{{{
+	if has_key(s:finder, a:filetype)
+		return s:finder[a:filetype]
+	endif
+endfunction "}}}
 
 " s:base_finder {{{
 let s:base_finder = {}
