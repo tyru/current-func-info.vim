@@ -54,7 +54,10 @@ function! s:finder.find_begin() "{{{
                     return NONE
                 endif
             endfor
-            if join(getline('.', '$'), '')[col('.') :] =~# '\s*[^;]'
+            if join(getline('.', '$'), '')[col('.') :] =~# '^\s*;'
+                " Function declaration
+                return NONE
+            else
                 let self.temp.funcname = funcname
                 break
             endif
